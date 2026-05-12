@@ -7,7 +7,7 @@ export default function() {
             <div className={styles.left_side}>
                 <img className={styles.left_icon} src='/study.svg' alt="left images" />
             </div>
-            <div className={styles.right_side}>
+            <div className={`${styles.right_side}`}>
             <div className={styles.right_container}>
                 <div style={{padding:"0 20px"}}>
                 <h1 className={styles.title}>MUHAMMAD AL-XORAZMIY NOMIDAGI <br />
