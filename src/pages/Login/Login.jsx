@@ -4,20 +4,36 @@ import LMS from "../../assets/logo-md.png";
 export default function() {
     return (
         <div className={styles.container}>
-            <h1>
-                MUHAMMAD AL-XORAZMIY NOMIDAGI
-                TOSHKENT AXBOROT TEXNOLOGIYALARI
-                UNIVERSITETI
-            </h1>
-            <img src={LMS} alt="" />
-            <h2>Learning Management System</h2>
+            <div className={styles.left_side}>
+                <img className={styles.left_icon} src='/study.svg' alt="left images" />
+            </div>
+            <div className={styles.right_side}>
+            <div className={styles.right_container}>
+                <div style={{padding:"0 20px"}}>
+                <h1 className={styles.title}>MUHAMMAD AL-XORAZMIY NOMIDAGI <br />
+                    TOSHKENT AXBOROT TEXNOLOGIYALARI <br />
+                    UNIVERSITETI</h1>
 
-            <form>
-                <label htmlFor="login">Login</label>
-                <input type="text" id='login' placeholder='Loginni kiriting' />
-                <label htmlFor="password">Parol</label>
-                <input type="password" id='password' placeholder='Parolni kirriting' />
-            </form>
+                <img className={styles.lms__icon} src={LMS} alt="" />
+                <h2 className={styles.lms_login}>
+                    Learning Management System
+                </h2>
+                </div>
+                <form className={styles.form}>
+                    <div className={styles.box}>
+                        <label className={styles.form__label} htmlFor="login">Login</label>
+                        <input className={styles.form__input} id='login' type="text" placeholder='Loginni kiriting' />
+                    </div>
+                    <div className={styles.box}>
+                        <label className={styles.form__label} htmlFor="login">Parol</label>
+                        <input className={styles.form__input} id='login' type="password" placeholder='Parolni kiriting' />
+                    </div>
+                    <button className={styles.form__button}>Kirish</button>
+                </form>
+              </div>
+
+              <p className={styles.lisence}>Copyright © 2021 of Tashkent University of Information Technologies</p>
+            </div>
         </div>
     )
 }
