@@ -110,10 +110,7 @@
     }
 
     .right_side {
-        display: flex;
-        justify-content: space-evenly;
-        // position:relative;
-        flex-direction: column;
+        position:relative;
     }
 
     .right_container {
@@ -124,7 +121,6 @@
     .lisence {
         bottom: 10px;
         font-size: 12px;
-        position: static;
     }
 }
 
