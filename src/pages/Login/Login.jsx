@@ -25,8 +25,8 @@ export default function() {
                         <input className={styles.form__input} id='login' type="text" placeholder='Loginni kiriting' />
                     </div>
                     <div className={styles.box}>
-                        <label className={styles.form__label} htmlFor="login">Parol</label>
-                        <input className={styles.form__input} id='login' type="password" placeholder='Parolni kiriting' />
+                        <label className={styles.form__label} htmlFor="password">Parol</label>
+                        <input className={styles.form__input} id='password' type="password" placeholder='Parolni kiriting' />
                     </div>
                     <button className={styles.form__button}>Kirish</button>
                 </form>

@@ -96,7 +96,8 @@
 }
 
 .right_container {
-    padding-bottom: 90px;
+    position: absolute;
+    top: 130px;
 }
 
 
@@ -115,7 +116,7 @@
 
     .right_container {
         width: 100%;
-        padding: 0 50px 90px;
+        top: 100px;
     }
 
     .lisence {
