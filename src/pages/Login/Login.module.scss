@@ -64,9 +64,16 @@
 .right_side {
     display: flex;
     justify-content: center;
-    align-items: center;
+    // align-items: center;
     position:relative;
     overflow: hidden;
+}
+
+.right_container {
+    position: absolute;
+    top:50%;
+    transform: translateX(-50%);
+    transform: translateY(-50%);
 }
 
 .title {
@@ -108,8 +115,6 @@
     .right_container {
         padding: 0 50px;
         width: 100%;
-        position: absolute;
-
     }
 
     .right_side {
@@ -127,6 +132,10 @@
 @media (max-width:400px) {
     .right_container {
         padding: 0 30px;
+    }
+
+    .lisence {
+        font-size: 10px;
     }
 }
 
