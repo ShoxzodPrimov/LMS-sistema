@@ -121,7 +121,11 @@
     
     .container {
         height: 92vh;
-        border: 1px solid red;
+        position: relative;
+    }
+
+    .right_side {
+        position: absolute;
     }
 }
 
