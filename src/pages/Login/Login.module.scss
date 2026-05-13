@@ -1,8 +1,8 @@
 .container {
     display: grid;
     grid-template-columns: repeat(2 , 1fr);
-    min-height: 100dvh;
     height: 100vh;
+    min-height: 100dvh;
 }
 
 .left_side {
