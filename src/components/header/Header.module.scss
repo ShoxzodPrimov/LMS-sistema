@@ -1,0 +1,142 @@
+.header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 24px;
+    background: transparent;
+    height: 70px;
+}
+
+.left,
+.right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.toggleBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: #6c35de;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s;
+
+    &:hover {
+        background: #5a2cc0;
+    }
+}
+
+.iconBtn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: transparent;
+    color: #64748b;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+
+    &:hover {
+        background: #f1f5f9;
+        color: #1e293b;
+    }
+}
+
+.addBtn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    height: 38px;
+    padding: 0 16px;
+    background: #6c35de;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background 0.2s;
+
+    &:hover {
+        background: #5a2cc0;
+    }
+}
+
+.searchBox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 0 12px;
+    height: 38px;
+    width: 250px;
+    transition: border-color 0.2s;
+
+    &:focus-within {
+        border-color: #6c35de;
+    }
+
+    .searchIcon {
+        color: #94a3b8;
+    }
+
+    input {
+        border: none;
+        background: transparent;
+        outline: none;
+        font-size: 14px;
+        color: #1e293b;
+        width: 100%;
+
+        &::placeholder {
+            color: #94a3b8;
+        }
+    }
+}
+
+.language {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 6px 12px;
+    background: #f8fafc;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #334155;
+    cursor: pointer;
+    transition: background 0.2s;
+
+    &:hover {
+        background: #f1f5f9;
+    }
+
+    .langIcon {
+        color: #64748b;
+    }
+}
+
+.avatar {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: #6c35de;
+    color: #ffffff;
+    border-radius: 50%;
+    font-weight: 600;
+    font-size: 16px;
+    cursor: pointer;
+}
