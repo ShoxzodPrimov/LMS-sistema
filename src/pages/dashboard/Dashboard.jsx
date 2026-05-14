@@ -1,5 +1,5 @@
 import Sidebar from "../../components/Sidebar/Sidebar";
-import Header from "../../components/Header/Header";
+import Header from "../../components/header/Header";
 import styles from "./Dashboard.module.scss";
 
 export default function Dashboard() {
