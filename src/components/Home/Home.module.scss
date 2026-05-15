@@ -1,0 +1,110 @@
+.container {
+    // Container styles if needed
+}
+
+.welcomeSection {
+    margin-bottom: 32px;
+
+    .welcomeTitle {
+        font-size: 28px;
+        font-weight: 700;
+        color: #1a1d20;
+        margin: 0 0 8px 0;
+    }
+
+    .welcomeSubtitle {
+        font-size: 15px;
+        color: #6c757d;
+        margin: 0;
+    }
+}
+
+.statsGrid {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 32px;
+    flex-wrap: wrap;
+}
+
+.statCard {
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 24px 16px;
+    flex: 1;
+    min-width: 140px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+    border: 1px solid #f1f3f5;
+
+    .statIcon {
+        margin-bottom: 12px;
+        color: #6C5CE7; 
+        svg {
+            font-size: 28px;
+        }
+    }
+
+    .statLabel {
+        font-size: 13px;
+        color: #6c757d;
+        margin-bottom: 8px;
+        font-weight: 500;
+        white-space: nowrap;
+    }
+
+    .statValue {
+        font-size: 26px;
+        font-weight: 700;
+        color: #1a1d20;
+    }
+}
+
+.accordionList {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.accordionItem {
+    background: #ffffff;
+    border-radius: 12px;
+    border: 1px solid #f1f3f5;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.03);
+    overflow: hidden;
+
+    .accordionHeader {
+        padding: 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        font-weight: 600;
+        color: #1a1d20;
+        font-size: 16px;
+
+        svg {
+            color: #adb5bd;
+            transition: transform 0.2s ease;
+        }
+    }
+
+    .accordionBody {
+        padding: 0 24px 24px 24px;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        border-top: 1px solid #f1f3f5;
+        background: #fafbfc;
+        padding-top: 24px;
+    }
+
+    .largeValue {
+        font-size: 64px;
+        font-weight: 700;
+        color: #d1d5db;
+        letter-spacing: 2px;
+    }
+}

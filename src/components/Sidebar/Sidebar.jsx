@@ -7,8 +7,6 @@ import GroupRoundedIcon from '@mui/icons-material/GroupRounded';
 import DiamondRoundedIcon from '@mui/icons-material/DiamondRounded';
 import CardGiftcardRoundedIcon from '@mui/icons-material/CardGiftcardRounded';
 import SettingsRoundedIcon from '@mui/icons-material/SettingsRounded';
-import NotificationsRoundedIcon from '@mui/icons-material/NotificationsRounded';
-import ReplayIcon from '@mui/icons-material/Replay';
 import ChevronLeftRoundedIcon from '@mui/icons-material/ChevronLeftRounded';
 
 const menuItems = [
@@ -56,7 +54,7 @@ export default function Sidebar() {
                     </div>
                 </div>
                 <button className={styles.subBtn}>
-                         <i style={{transform:'rotate(50deg)'}} class="bi bi-arrow-clockwise"></i><p className={styles.subtext}>Obunani yangilash</p>
+                    <i style={{ transform: 'rotate(50deg)' }} class="bi bi-arrow-clockwise"></i><p className={styles.subtext}>Obunani yangilash</p>
                 </button>
             </div>
         </aside>

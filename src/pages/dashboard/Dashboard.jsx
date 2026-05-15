@@ -1,17 +1,7 @@
-import Sidebar from "../../components/Sidebar/Sidebar";
-import Header from "../../components/header/Header";
-import styles from "./Dashboard.module.scss";
+import Home from "../../components/Home/Home";
 
 export default function Dashboard() {
     return (
-        <div className={styles.layout}>
-            <Sidebar />
-            <div className={styles.main}>
-                <Header />
-                <div className={styles.content}>
-                    {/* Asosiy kontent shu yerga tushadi */}
-                </div>
-            </div>
-        </div>
+        <Home />
     );
 }
