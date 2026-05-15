@@ -11,6 +11,34 @@
     top: 0;
     left: 0;
     z-index: 100;
+    transition: width 0.3s ease;
+}
+
+.collapsed {
+    width: 80px;
+
+    .logo {
+        padding: 0;
+        justify-content: center;
+        border-bottom: none;
+    }
+
+    .nav {
+        padding: 0 12px;
+    }
+
+    .item {
+        justify-content: center;
+        padding: 12px 0;
+    }
+
+    .subscription {
+        margin: 0 10px;
+        padding: 10px;
+        border: none;
+        background: transparent;
+        align-items: center;
+    }
 }
 
 .logo {

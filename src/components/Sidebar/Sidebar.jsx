@@ -18,14 +18,17 @@ const menuItems = [
     { label: "Boshqarish", icon: <SettingsRoundedIcon />, path: "/settings" },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ isCollapsed, toggleSidebar }) {
     return (
-        <aside className={styles.sidebar}>
+        <aside className={`${styles.sidebar} ${isCollapsed ? styles.collapsed : ""}`}>
             <div className={styles.logo}>
                 <SchoolRoundedIcon className={styles.logoIcon} />
-                <span className={styles.logoText}>NajotEdu</span>
-                <button className={styles.toggleBtn}>
-                    <ChevronLeftRoundedIcon fontSize="small" />
+                {!isCollapsed && <span className={styles.logoText}>NajotEdu</span>}
+                <button className={styles.toggleBtn} onClick={toggleSidebar}>
+                    <ChevronLeftRoundedIcon 
+                        fontSize="small" 
+                        style={{ transform: isCollapsed ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.3s' }} 
+                    />
                 </button>
             </div>
 
@@ -40,7 +43,7 @@ export default function Sidebar() {
                         end={item.path === "/dashboard"}
                     >
                         <span className={styles.itemIcon}>{item.icon}</span>
-                        <span className={styles.itemLabel}>{item.label}</span>
+                        {!isCollapsed && <span className={styles.itemLabel}>{item.label}</span>}
                     </NavLink>
                 ))}
             </nav>
@@ -48,14 +51,18 @@ export default function Sidebar() {
             <div className={styles.subscription}>
                 <div className={styles.subInfo}>
                     <img className={styles.alarm} src="/alarm.webp" alt="" />
-                    <div>
-                        <p className={styles.subTitle}>Obuna</p>
-                        <p className={styles.subStatus}>Obunangiz tugagan</p>
-                    </div>
+                    {!isCollapsed && (
+                        <div>
+                            <p className={styles.subTitle}>Obuna</p>
+                            <p className={styles.subStatus}>Obunangiz tugagan</p>
+                        </div>
+                    )}
                 </div>
-                <button className={styles.subBtn}>
-                    <i style={{ transform: 'rotate(50deg)' }} class="bi bi-arrow-clockwise"></i><p className={styles.subtext}>Obunani yangilash</p>
-                </button>
+                {!isCollapsed && (
+                    <button className={styles.subBtn}>
+                        <i style={{ transform: 'rotate(50deg)' }} className="bi bi-arrow-clockwise"></i><p className={styles.subtext}>Obunani yangilash</p>
+                    </button>
+                )}
             </div>
         </aside>
     );

@@ -28,7 +28,7 @@ export default function Home() {
     return (
         <div className={styles.container}>
             <div className={styles.welcomeSection}>
-                <h1 className={styles.welcomeTitle}>Salom, Abduxoshim Sultonqulov!</h1>
+                <h1 className={styles.welcomeTitle}>Salom, Shoxzod Primov!</h1>
                 <p className={styles.welcomeSubtitle}>NajotEdu platformasiga xush kelibsiz!</p>
             </div>
 
