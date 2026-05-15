@@ -1,4 +1,4 @@
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 import styles from "./Sidebar.module.scss";
 import SchoolRoundedIcon from "@mui/icons-material/SchoolRounded";
 import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
@@ -15,10 +15,12 @@ const menuItems = [
     { label: "Guruhlar", icon: <GroupRoundedIcon />, path: "/groups" },
     { label: "Talabalar", icon: <DiamondRoundedIcon />, path: "/students" },
     { label: "Sovg'alar", icon: <CardGiftcardRoundedIcon />, path: "/gifts" },
-    { label: "Boshqarish", icon: <SettingsRoundedIcon />, path: "/settings" },
+    { label: "Boshqarish", icon: <SettingsRoundedIcon />, path: "/management" },
 ];
 
-export default function Sidebar({ isCollapsed, toggleSidebar, onToggleSubSidebar, isSubSidebarOpen }) {
+export default function Sidebar({ isCollapsed, toggleSidebar, isSubSidebarOpen }) {
+    const navigate = useNavigate();
+
     return (
         <aside className={`${styles.sidebar} ${isCollapsed ? styles.collapsed : ""}`}>
             <div className={styles.logo}>
@@ -33,40 +35,27 @@ export default function Sidebar({ isCollapsed, toggleSidebar, onToggleSubSidebar
             </div>
 
             <nav className={styles.nav}>
-                {menuItems.map((item) => {
-                    const isManagement = item.label === "Boshqarish";
-                    
-                    if (isManagement) {
-                        return (
-                            <button
-                                key={item.label}
-                                className={`${styles.item} ${isSubSidebarOpen ? styles.itemActive : ""}`}
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    onToggleSubSidebar();
-                                }}
-                            >
-                                <span className={styles.itemIcon}>{item.icon}</span>
-                                {!isCollapsed && <span className={styles.itemLabel}>{item.label}</span>}
-                            </button>
-                        );
-                    }
-
-                    return (
-                        <NavLink
-                            key={item.path}
-                            to={item.path}
-                            onClick={() => onToggleSubSidebar(false)}
-                            className={({ isActive }) =>
-                                `${styles.item}${isActive && !isSubSidebarOpen ? ` ${styles.itemActive}` : ""}`
+                {menuItems.map((item) => (
+                    <NavLink
+                        key={item.path}
+                        to={item.path}
+                        onClick={(e) => {
+                            if (item.label === "Boshqarish" && isSubSidebarOpen) {
+                                e.preventDefault();
+                                navigate("/dashboard");
                             }
-                            end={item.path === "/dashboard"}
-                        >
-                            <span className={styles.itemIcon}>{item.icon}</span>
-                            {!isCollapsed && <span className={styles.itemLabel}>{item.label}</span>}
-                        </NavLink>
-                    );
-                })}
+                        }}
+                        className={({ isActive }) => {
+                            const isManagement = item.label === "Boshqarish";
+                            const shouldBeActive = isManagement ? isSubSidebarOpen : (isActive && !isSubSidebarOpen);
+                            return `${styles.item}${shouldBeActive ? ` ${styles.itemActive}` : ""}`;
+                        }}
+                        end={item.path === "/dashboard"}
+                    >
+                        <span className={styles.itemIcon}>{item.icon}</span>
+                        {!isCollapsed && <span className={styles.itemLabel}>{item.label}</span>}
+                    </NavLink>
+                ))}
             </nav>
 
             <div className={styles.subscription}>

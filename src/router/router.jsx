@@ -20,6 +20,10 @@ export const router = createBrowserRouter([
                 path: '/dashboard',
                 element: <Dashboard />
             },
+            {
+                path: '/management',
+                element: <Dashboard />
+            },
             // Siz bu yerga boshqa sahifalarni ham qo'shishingiz mumkin
         ]
     },
