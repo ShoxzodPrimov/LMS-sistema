@@ -49,14 +49,14 @@ export default function Sidebar() {
 
             <div className={styles.subscription}>
                 <div className={styles.subInfo}>
-                    <span className={styles.subBell}><NotificationsRoundedIcon className={styles.bellIcon} /></span>
+                    <img className={styles.alarm} src="/alarm.webp" alt="" />
                     <div>
                         <p className={styles.subTitle}>Obuna</p>
                         <p className={styles.subStatus}>Obunangiz tugagan</p>
                     </div>
                 </div>
                 <button className={styles.subBtn}>
-                    <ReplayIcon className={styles.subIcon} /> Obunani yangilash
+                         <i style={{transform:'rotate(50deg)'}} class="bi bi-arrow-clockwise"></i><p className={styles.subtext}>Obunani yangilash</p>
                 </button>
             </div>
         </aside>

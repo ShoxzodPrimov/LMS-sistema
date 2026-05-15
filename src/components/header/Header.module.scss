@@ -46,7 +46,6 @@
     transition: background 0.2s, color 0.2s;
 
     &:hover {
-        background: #f1f5f9;
         color: #1e293b;
     }
 }
@@ -75,7 +74,7 @@
     display: flex;
     align-items: center;
     gap: 8px;
-    background: #f8fafc;
+    background: #ffffff;
     border: 1px solid #e2e8f0;
     border-radius: 8px;
     padding: 0 12px;
@@ -88,7 +87,11 @@
     }
 
     .searchIcon {
-        color: #94a3b8;
+        background: url('https://www.freeiconspng.com/uploads/search-icon-png-18.png');
+        background-repeat: no-repeat;
+        background-size: 0.9rem;
+        background-position: left center;
+        padding: 0 20px;
     }
 
     input {
@@ -110,11 +113,12 @@
     align-items: center;
     gap: 4px;
     padding: 6px 12px;
-    background: #f8fafc;
+    background: transparent;
     border-radius: 8px;
     font-size: 14px;
     font-weight: 500;
     color: #334155;
+    border: 1px solid rgb(228, 228, 228);
     cursor: pointer;
     transition: background 0.2s;
 

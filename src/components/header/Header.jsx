@@ -2,7 +2,6 @@ import styles from './Header.module.scss';
 import CalendarTodayRoundedIcon from '@mui/icons-material/CalendarTodayRounded';
 import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import ExpandMoreRoundedIcon from '@mui/icons-material/ExpandMoreRounded';
-import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
 import NotificationsNoneRoundedIcon from '@mui/icons-material/NotificationsNoneRounded';
 import DarkModeRoundedIcon from '@mui/icons-material/DarkModeRounded';
 
@@ -19,8 +18,7 @@ export default function Header() {
                     <ExpandMoreRoundedIcon fontSize="small" />
                 </button>
                 <div className={styles.searchBox}>
-                    <SearchRoundedIcon className={styles.searchIcon} fontSize="small" />
-                    <input type="text" placeholder="Qidirish..." />
+                    <input className={styles.searchIcon} type="text" placeholder="Qidirish..." />
                 </div>
             </div>
 
