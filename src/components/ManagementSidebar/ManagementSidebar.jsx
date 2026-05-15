@@ -1,31 +1,23 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import styles from "./ManagementSidebar.module.scss";
 import SchoolRoundedIcon from '@mui/icons-material/SchoolRounded';
 import MeetingRoomRoundedIcon from '@mui/icons-material/MeetingRoomRounded';
-import AccountTreeRoundedIcon from '@mui/icons-material/AccountTreeRounded';
 import BadgeRoundedIcon from '@mui/icons-material/BadgeRounded';
-import QuestionAnswerRoundedIcon from '@mui/icons-material/QuestionAnswerRounded';
-import SecurityRoundedIcon from '@mui/icons-material/SecurityRounded';
 import MonetizationOnRoundedIcon from '@mui/icons-material/MonetizationOnRounded';
 import SendRoundedIcon from '@mui/icons-material/SendRounded';
-import HelpRoundedIcon from '@mui/icons-material/HelpRounded';
-import FactCheckRoundedIcon from '@mui/icons-material/FactCheckRounded';
 
 const subMenuItems = [
     { label: "Kurslar", icon: <SchoolRoundedIcon /> },
     { label: "Xonalar", icon: <MeetingRoomRoundedIcon /> },
-    { label: "Filial", icon: <AccountTreeRoundedIcon /> },
-    { label: "Hodimlar", icon: <BadgeRoundedIcon /> },
-    { label: "Sabablar", icon: <QuestionAnswerRoundedIcon /> },
-    { label: "Rollar", icon: <SecurityRoundedIcon /> },
+    { label: "Xodimlar", icon: <BadgeRoundedIcon /> },
     { label: "Coin", icon: <MonetizationOnRoundedIcon /> },
     { label: "Xabar Yuborish", icon: <SendRoundedIcon /> },
-    { label: "FAQ", icon: <HelpRoundedIcon /> },
-    { label: "Tekshiruv", icon: <FactCheckRoundedIcon /> },
 ];
 
-export default function ManagementSidebar({ isOpen, onClose, isCollapsed }) {
+export default function ManagementSidebar({ isOpen, isCollapsed, onClose }) {
     const [activeIndex, setActiveIndex] = useState(0);
+    const navigate = useNavigate();
 
     return (
         <div className={`${styles.subSidebar} ${isOpen ? styles.open : ""} ${isCollapsed ? styles.collapsed : ""}`}>
@@ -37,7 +29,13 @@ export default function ManagementSidebar({ isOpen, onClose, isCollapsed }) {
                     <div 
                         key={index} 
                         className={`${styles.item} ${activeIndex === index ? styles.itemActive : ""}`}
-                        onClick={() => setActiveIndex(index)}
+                        onClick={() => {
+                            setActiveIndex(index);
+                            if (item.label !== "Coin" && item.label !== "Xabar Yuborish") {
+                                onClose();
+                                navigate(`/management/content?tab=${item.label}`);
+                            }
+                        }}
                     >
                         <span className={styles.icon}>{item.icon}</span>
                         <span className={styles.label}>{item.label}</span>

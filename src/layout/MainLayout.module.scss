@@ -17,11 +17,11 @@
 }
 
 .mainWithSubSidebar {
-    margin-left: 520px; /* 240 + 280 */
+    /* Don't shift content anymore */
 }
 
 .mainCollapsed.mainWithSubSidebar {
-    margin-left: 360px; /* 80 + 280 */
+    /* Don't shift content anymore */
 }
 
 .content {

@@ -18,7 +18,7 @@ const menuItems = [
     { label: "Boshqarish", icon: <SettingsRoundedIcon />, path: "/management" },
 ];
 
-export default function Sidebar({ isCollapsed, toggleSidebar, isSubSidebarOpen }) {
+export default function Sidebar({ isCollapsed, toggleSidebar, isSubSidebarOpen, toggleSubSidebar }) {
     const navigate = useNavigate();
 
     return (
@@ -27,9 +27,9 @@ export default function Sidebar({ isCollapsed, toggleSidebar, isSubSidebarOpen }
                 <SchoolRoundedIcon className={styles.logoIcon} />
                 {!isCollapsed && <span className={styles.logoText}>NajotEdu</span>}
                 <button className={styles.toggleBtn} onClick={toggleSidebar}>
-                    <ChevronLeftRoundedIcon 
-                        fontSize="small" 
-                        style={{ transform: isCollapsed ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.3s' }} 
+                    <ChevronLeftRoundedIcon
+                        fontSize="small"
+                        style={{ transform: isCollapsed ? 'rotate(180deg)' : 'rotate(0deg)', transition: 'transform 0.3s' }}
                     />
                 </button>
             </div>
@@ -38,15 +38,17 @@ export default function Sidebar({ isCollapsed, toggleSidebar, isSubSidebarOpen }
                 {menuItems.map((item) => (
                     <NavLink
                         key={item.path}
-                        to={item.path}
+                        to={item.label === "Boshqarish" ? "/management" : item.path}
                         onClick={(e) => {
-                            if (item.label === "Boshqarish" && isSubSidebarOpen) {
-                                e.preventDefault();
-                                navigate("/dashboard");
+                            if (item.label === "Boshqarish") {
+                                toggleSubSidebar();
                             }
                         }}
                         className={({ isActive }) => {
                             const isManagement = item.label === "Boshqarish";
+                            const isDashboard = item.path === "/dashboard";
+                            // Highlight Boshqarish if subsidebar is open
+                            // Highlight Dashboard if we are on dashboard AND subsidebar is closed
                             const shouldBeActive = isManagement ? isSubSidebarOpen : (isActive && !isSubSidebarOpen);
                             return `${styles.item}${shouldBeActive ? ` ${styles.itemActive}` : ""}`;
                         }}

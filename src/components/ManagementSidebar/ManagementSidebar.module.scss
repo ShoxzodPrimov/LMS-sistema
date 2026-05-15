@@ -15,6 +15,9 @@
     display: flex;
     flex-direction: column;
     padding: 20px;
+    border-top-right-radius: 20px;
+    border-bottom-right-radius: 20px;
+    overflow: hidden;
 }
 
 .open {
@@ -27,7 +30,9 @@
     display: flex;
     align-items: center;
     gap: 12px;
-    margin-bottom: 24px;
+    padding-bottom: 34px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid #f0f0f0;
 }
 
 .title {
@@ -54,18 +59,22 @@
     font-size: 15px;
     font-weight: 500;
     cursor: pointer;
-    transition: background 0.2s, color 0.2s;
+    transition: all 0.2s ease;
 
     &:hover {
         background: #f3f0ff;
         color: #6c35de;
+
+        .icon {
+            color: #6c35de;
+        }
     }
 }
 
 .itemActive {
     background: #6c35de;
     color: #ffffff;
-    box-shadow: 0 4px 12px rgba(108, 53, 222, 0.3);
+    box-shadow: 0 4px 12px rgba(108, 53, 222, 0.2);
 
     .icon {
         color: #ffffff;
@@ -74,15 +83,21 @@
     &:hover {
         background: #5a2cc0;
         color: #ffffff;
+
+        .icon {
+            color: #ffffff;
+        }
     }
 }
 
 .icon {
-    font-size: 20px;
+    font-size: 18px;
+    width: 24px;
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #6c35de;
+    color: #4a4a6a;
+    transition: color 0.2s ease;
 }
 
 .collapsed {
