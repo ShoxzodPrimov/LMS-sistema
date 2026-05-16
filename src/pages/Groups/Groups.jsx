@@ -8,6 +8,7 @@ import MoreVertRoundedIcon from '@mui/icons-material/MoreVertRounded';
 import RefreshRoundedIcon from '@mui/icons-material/RefreshRounded';
 import ArchiveOutlinedIcon from '@mui/icons-material/ArchiveOutlined';
 import Switch from '@mui/material/Switch';
+import GroupModal from "../../components/UI/GroupModal/GroupModal";
 
 const groupsData = [
     {
@@ -38,12 +39,15 @@ const groupsData = [
 
 export default function Groups() {
     const [activeTab, setActiveTab] = useState("groups");
+    const [isModalOpen, setIsModalOpen] = useState(false);
+
+    const toggleModal = () => setIsModalOpen(!isModalOpen);
 
     return (
         <div className={styles.container}>
             <div className={styles.header}>
                 <h1 className={styles.title}>Guruhlar</h1>
-                <button className={styles.addBtn}>
+                <button className={styles.addBtn} onClick={toggleModal}>
                     <AddRoundedIcon />
                     Guruh qo'shish
                 </button>
@@ -174,6 +178,15 @@ export default function Groups() {
                     </table>
                 </div>
             </div>
+
+            <GroupModal 
+                isOpen={isModalOpen} 
+                onClose={toggleModal} 
+                onSave={() => {
+                    console.log("Group saved");
+                    toggleModal();
+                }}
+            />
         </div>
     );
 }
