@@ -103,6 +103,29 @@
     }
 }
 
+.dateInputWrapper {
+    width: 100%;
+    
+    input {
+        width: 100%;
+        display: block;
+        padding: 10px 14px;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 14px;
+        color: #111827;
+        outline: none;
+        background: #ffffff;
+        font-family: inherit;
+
+        &::-webkit-calendar-picker-indicator {
+            cursor: pointer;
+            padding: 5px;
+            filter: invert(0.5);
+        }
+    }
+}
+
 .addGroupBtn {
     display: flex;
     align-items: center;
