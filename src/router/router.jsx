@@ -10,6 +10,7 @@ import Staff from "../pages/management/Staff/Staff";
 import Teachers from "../pages/Teachers/Teachers";
 import Students from "../pages/Students/Students";
 import Groups from "../pages/Groups/Groups";
+import Gifts from "../pages/Gifts/Gifts";
 
 export const router = createBrowserRouter([
     {
@@ -39,6 +40,12 @@ export const router = createBrowserRouter([
                 path: '/groups',
                 element: <Groups />
             },
+
+            {
+                path: '/gifts',
+                element: <Gifts />
+            },
+
             {
                 path: '/management',
                 element: <Management />,
@@ -58,7 +65,7 @@ export const router = createBrowserRouter([
                     {
                         path: '',
                         element: <Dashboard />
-                    }
+                    },
                 ]
             },
             // Siz bu yerga boshqa sahifalarni ham qo'shishingiz mumkin
