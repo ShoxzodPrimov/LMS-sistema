@@ -1,4 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { api } from '../../api/api';
+
 import styles from "./Groups.module.scss";
 import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import GroupsRoundedIcon from '@mui/icons-material/GroupsRounded';
@@ -10,58 +12,47 @@ import ArchiveOutlinedIcon from '@mui/icons-material/ArchiveOutlined';
 import Switch from '@mui/material/Switch';
 import GroupModal from "../../components/UI/GroupModal/GroupModal";
 
-const groupsData = [
-    {
-        id: 1,
-        status: true,
-        name: "N26",
-        course: "Backend",
-        duration: "6 oy",
-        time: "09:30",
-        days: "Du, Se, Chor, Pay, Ju",
-        room: "Autodesk",
-        teacher: "Mohirbek",
-        students: 1
-    },
-    {
-        id: 2,
-        status: true,
-        name: "n105",
-        course: "Backend",
-        duration: "6 oy",
-        time: "16:00",
-        days: "Se, Pay, Shan",
-        room: "Autodesk",
-        teacher: "Mohirbek",
-        students: 4
-    }
-];
-
 export default function Groups() {
     const [activeTab, setActiveTab] = useState("groups");
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [groups, setGroup] = useState([]);
 
     const toggleModal = () => setIsModalOpen(!isModalOpen);
+
+    useEffect(() => {
+        api.get(`/groups/all`, {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem("accessToken")}`
+            }
+        }).then(
+            res => {
+                setGroup(res.data.data)
+            }
+
+        ).catch(
+            err => console.log(err.message)
+        )
+    }, [])
 
     return (
         <div className={styles.container}>
             <div className={styles.header}>
                 <h1 className={styles.title}>Guruhlar</h1>
                 <button className={styles.addBtn} onClick={toggleModal}>
-                    <AddRoundedIcon />
-                    Guruh qo'shish
+                    <AddRoundedIcon fontSize="small" />
+                    <span className={styles.addBtnText}>Guruh qo'shish</span>
                 </button>
             </div>
 
             <div className={styles.tabs}>
-                <button 
+                <button
                     className={`${styles.tab} ${activeTab === "groups" ? styles.activeTab : ""}`}
                     onClick={() => setActiveTab("groups")}
                 >
                     <GroupsRoundedIcon fontSize="small" />
                     Guruhlar
                 </button>
-                <button 
+                <button
                     className={`${styles.tab} ${activeTab === "archive" ? styles.activeTab : ""}`}
                     onClick={() => setActiveTab("archive")}
                 >
@@ -126,7 +117,8 @@ export default function Groups() {
                                 <th>Guruh nomi</th>
                                 <th>Kurs</th>
                                 <th>Davomiyligi</th>
-                                <th>Dars vaqti</th>
+                                <th>Kunlar</th>
+                                <th>Vaqti</th>
                                 <th>Xona</th>
                                 <th>O'qituvchi</th>
                                 <th>Talabalar</th>
@@ -136,12 +128,12 @@ export default function Groups() {
                             </tr>
                         </thead>
                         <tbody>
-                            {groupsData.map((group) => (
+                            {groups.map((group) => (
                                 <tr key={group.id}>
                                     <td>
                                         <div className={styles.statusCell}>
-                                            <Switch 
-                                                defaultChecked={group.status} 
+                                            <Switch
+                                                defaultChecked={group.status}
                                                 size="small"
                                                 sx={{
                                                     '& .MuiSwitch-switchBase.Mui-checked': {
@@ -155,20 +147,24 @@ export default function Groups() {
                                             <span className={styles.statusLabel}>FAOL</span>
                                         </div>
                                     </td>
-                                    <td><span className={styles.groupName}>{group.name}</span></td>
+                                    <td><span className={styles.groupName}>{group.course.name}</span></td>
                                     <td>
-                                        <span className={styles.courseTag}>{group.course}</span>
+                                        <span className={styles.courseTag}>{group.name}</span>
                                     </td>
-                                    <td>{group.duration}</td>
+                                    <td>{group.course.duration_month}oy</td>
                                     <td>
-                                        <div className={styles.timeInfo}>
-                                            <span className={styles.time}>{group.time}</span>
-                                            <span className={styles.days}>{group.days}</span>
-                                        </div>
+                                        <span className={styles.days}>{group.week_day.join(', ')}</span>
+                                    </td>
+                                    <td>
+                                        <span className={styles.time}>{group.start_time}</span>
                                     </td>
                                     <td>{group.room}</td>
-                                    <td>{group.teacher}</td>
-                                    <td><span className={styles.studentCount}>{group.students}</span></td>
+                                    <td>
+                                        {group.teachers.map(
+                                            teacher => <p key={teacher.id}>{teacher.full_name}</p>
+                                        )}
+                                    </td>
+                                    <td><span className={styles.studentCount}>{group.students.length}</span></td>
                                     <td style={{ textAlign: 'right' }}>
                                         <MoreVertRoundedIcon className={styles.rowMoreIcon} />
                                     </td>
@@ -179,9 +175,9 @@ export default function Groups() {
                 </div>
             </div>
 
-            <GroupModal 
-                isOpen={isModalOpen} 
-                onClose={toggleModal} 
+            <GroupModal
+                isOpen={isModalOpen}
+                onClose={toggleModal}
                 onSave={() => {
                     console.log("Group saved");
                     toggleModal();

@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { Outlet, useLocation } from "react-router-dom";
+import { useState } from "react";
+import { Navigate, Outlet } from "react-router-dom";
 import Sidebar from "../components/Sidebar/Sidebar";
 import Header from "../components/header/Header";
 import ManagementSidebar from "../components/ManagementSidebar/ManagementSidebar";
@@ -7,16 +7,7 @@ import styles from "./MainLayout.module.scss";
 
 export default function MainLayout() {
     const [isCollapsed, setIsCollapsed] = useState(false);
-    const location = useLocation();
     const [isSubSidebarVisible, setIsSubSidebarVisible] = useState(false);
-    
-    // Open subsidebar when navigating to management if not already open
-    useEffect(() => {
-        if (location.pathname.startsWith('/management')) {
-            // We can keep it open or let the user toggle it. 
-            // For now, let's say clicking "Boshqarish" opens it.
-        }
-    }, [location.pathname]);
 
     const toggleSidebar = () => {
         setIsCollapsed(!isCollapsed);
@@ -29,6 +20,10 @@ export default function MainLayout() {
     const closeSubSidebar = () => {
         setIsSubSidebarVisible(false);
     };
+
+    const auth = localStorage.getItem('accessToken');
+    if ( !auth )
+        return <Navigate to='/login' />
 
     return (
         <div className={styles.layout}>

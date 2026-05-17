@@ -63,7 +63,7 @@ export default function Courses() {
             <div className={styles.header}>
                 <h2 className={styles.title}>Kurslar</h2>
                 <button className={styles.addBtn} onClick={toggleModal}>
-                    <AddRoundedIcon />
+                    <AddRoundedIcon fontSize="small" />
                     Kurslar qo'shish
                 </button>
             </div>
@@ -132,9 +132,7 @@ export default function Courses() {
 
                     <div className={styles.formGroup}>
                         <label>Narx</label>
-                        <div className={styles.inputWrapper}>
-                            <input type="text" placeholder="Narxini kiriting" />
-                        </div>
+                        <input type="text" placeholder="Narxini kiriting" />
                     </div>
 
                     <div className={styles.formGroup}>

@@ -1,5 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "./Teachers.module.scss";
+import { api } from '../../api/api';
+
+// ui librariries
 import FilterListRoundedIcon from '@mui/icons-material/FilterListRounded';
 import ArchiveOutlinedIcon from '@mui/icons-material/ArchiveOutlined';
 import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
@@ -9,58 +12,42 @@ import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import TeacherModal from "../../components/UI/TeacherModal/TeacherModal";
 
-const teachersData = [
-    {
-        id: 1,
-        name: "Mohirbek",
-        avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Mohir",
-        groups: ["N26", "n105"],
-        phone: "+998944481309",
-        email: "moxirbek@gmail.com",
-        address: "Tashkent",
-        createdAt: "12.05.2026"
-    },
-    {
-        id: 2,
-        name: "Dilshod",
-        avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Dilshod",
-        groups: ["F12", "m202"],
-        phone: "+998901234567",
-        email: "dilshod@gmail.com",
-        address: "Samarkand",
-        createdAt: "10.05.2026"
-    },
-    {
-        id: 3,
-        name: "Anvar",
-        avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Anvar",
-        groups: ["UX1"],
-        phone: "+998935556677",
-        email: "anvar@gmail.com",
-        address: "Bukhara",
-        createdAt: "08.05.2026"
-    }
-];
 
 export default function Teachers() {
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [teacherData, setTeacherData] = useState([]);
 
     const toggleModal = () => setIsModalOpen(!isModalOpen);
+
+
+    useEffect(() => {
+        api.get('/teachers', {
+            headers: {
+                Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+            }
+        }).then(
+            res => {
+                setTeacherData(res.data.data)
+            }
+        ).catch(
+            err => console.log(err.message)
+        )
+    }, [])
 
     return (
         <div className={styles.container}>
             <div className={styles.header}>
-                <div className={styles.titleSection}>
+                <div className={styles.headerTop}>
                     <h1 className={styles.title}>O'qituvchilar</h1>
-                    <p className={styles.subtitle}>
-                        Ushbu sahifada siz o'qituvchilar ro'yxatini va ularning ma'lumotlarini topasiz. 
-                        Har bir o'qituvchining ismi, fanlari va aloqa ma'lumotlari keltirilgan.
-                    </p>
+                    <button className={styles.addBtn} onClick={toggleModal}>
+                        <AddRoundedIcon fontSize="small" />
+                        <span className={styles.addBtnText}>O'qituvchi qo'shish</span>
+                    </button>
                 </div>
-                <button className={styles.addBtn} onClick={toggleModal}>
-                    <AddRoundedIcon />
-                    O'qituvchi qo'shish
-                </button>
+                <p className={styles.subtitle}>
+                    Ushbu sahifada siz o'qituvchilar ro'yxatini va ularning ma'lumotlarini topasiz.
+                    Har bir o'qituvchining ismi, fanlari va aloqa ma'lumotlari keltirilgan.
+                </p>
             </div>
 
             <div className={styles.tableCard}>
@@ -98,15 +85,15 @@ export default function Teachers() {
                             </tr>
                         </thead>
                         <tbody>
-                            {teachersData.map((teacher) => (
+                            {teacherData.map((teacher) => (
                                 <tr key={teacher.id}>
                                     <td>
                                         <input type="checkbox" />
                                     </td>
                                     <td>
                                         <div className={styles.userInfo}>
-                                            <img src={teacher.avatar} alt={teacher.name} className={styles.avatar} />
-                                            <span className={styles.userName}>{teacher.name}</span>
+                                            <img alt={teacher.photo} className={styles.avatar} />
+                                            <span className={styles.userName}>{teacher.full_name}</span>
                                         </div>
                                     </td>
                                     <td>
@@ -119,7 +106,7 @@ export default function Teachers() {
                                     <td>{teacher.phone}</td>
                                     <td>{teacher.email}</td>
                                     <td>{teacher.address}</td>
-                                    <td>{teacher.createdAt}</td>
+                                    <td>{new Date(teacher.created_at).toLocaleDateString()}</td>
                                     <td style={{ textAlign: 'right' }}>
                                         <div className={styles.actions}>
                                             <button className={styles.actionBtn}><VisibilityOutlinedIcon fontSize="small" /></button>
@@ -148,9 +135,9 @@ export default function Teachers() {
                 </div>
             </div>
 
-            <TeacherModal 
-                isOpen={isModalOpen} 
-                onClose={toggleModal} 
+            <TeacherModal
+                isOpen={isModalOpen}
+                onClose={toggleModal}
                 onSave={() => {
                     console.log("Teacher saved");
                     toggleModal();

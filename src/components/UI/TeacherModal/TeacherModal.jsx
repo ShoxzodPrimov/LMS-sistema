@@ -41,13 +41,13 @@ export default function TeacherModal({
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className={styles.header}>
-                    <div className={styles.headerText}>
+                    <div className={styles.headerTop}>
                         <h2 className={styles.title}>O'qituvchi qo'shish</h2>
-                        <p className={styles.subtitle}>Bu yerda siz yangi o'qituvchi qo'shishingiz mumkin.</p>
+                        <button className={styles.closeBtn} onClick={onClose}>
+                            <CloseRoundedIcon />
+                        </button>
                     </div>
-                    <button className={styles.closeBtn} onClick={onClose}>
-                        <CloseRoundedIcon />
-                    </button>
+                    <p className={styles.subtitle}>Bu yerda siz yangi o'qituvchi qo'shishingiz mumkin.</p>
                 </div>
 
                 <div className={styles.body}>
@@ -66,6 +66,7 @@ export default function TeacherModal({
                         <input type="text" placeholder="Ma'lumotni kiriting" />
                     </div>
 
+
                     <div className={styles.formGroup}>
                         <label>Guruh</label>
                         <button className={styles.addGroupBtn} onClick={toggleAddGroupModal}>
@@ -83,6 +84,16 @@ export default function TeacherModal({
                             </p>
                             <p className={styles.uploadHint}>JPG or PNG (max. 800x800px)</p>
                         </div>
+                    </div>
+
+                    <div className={styles.formGroup}>
+                        <label>Manzil</label>
+                        <input type="text" placeholder="Manzilni kiriting" />
+                    </div>
+
+                    <div className={styles.formGroup}>
+                        <label>Parol</label>
+                        <input type="password" placeholder="Parolni kiriting" />
                     </div>
                 </div>
 

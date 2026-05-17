@@ -18,21 +18,18 @@ export default function () {
 
         api.post('/auth/login' , input ).then(
             res => {
-                if (res.status == 201) {
-                    localStorage.setItem("accessToken" , res.data.accessToken);
+                const auth = res.data.accessToken;
+                localStorage.setItem("accessToken" , res.data.accessToken);
+                
+                if (auth) {
+                      navigate('/dashboard' , {
+                        replace:true
+                      });
                 }
             } 
         ).catch(
             err => console.log(err.message)
         )
-
-        console.log(auth)
-
-        if (auth) {
-            navigate('/dashboard' , {
-                replace:true
-            });
-        }
     }
 
     function InputData(e) {

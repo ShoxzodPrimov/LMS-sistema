@@ -26,7 +26,7 @@ export default function Rooms() {
                     <RefreshRoundedIcon className={styles.refreshIcon} />
                 </div>
                 <button className={styles.addBtn} onClick={toggleModal}>
-                    <AddRoundedIcon />
+                    <AddRoundedIcon fontSize="small" />
                     Xonani qo'shish
                 </button>
             </div>

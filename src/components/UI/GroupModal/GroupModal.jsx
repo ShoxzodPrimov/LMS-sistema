@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import styles from "./GroupModal.module.scss";
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import AddRoundedIcon from '@mui/icons-material/AddRounded';
+import CalendarTodayRoundedIcon from '@mui/icons-material/CalendarTodayRounded';
 import { createPortal } from "react-dom";
 import AddStudentModal from "./AddStudentModal/AddStudentModal";
 import AddTeacherModal from "./AddTeacherModal/AddTeacherModal";
@@ -49,13 +50,13 @@ export default function GroupModal({ isOpen, onClose, onSave }) {
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className={styles.header}>
-                    <div className={styles.headerText}>
+                    <div className={styles.headerTop}>
                         <h2 className={styles.title}>Guruh qo'shish</h2>
-                        <p className={styles.subtitle}>Yangi guruh yaratish uchun quyidagi ma'lumotlarni kiriting.</p>
+                        <button className={styles.closeBtn} onClick={onClose}>
+                            <CloseRoundedIcon />
+                        </button>
                     </div>
-                    <button className={styles.closeBtn} onClick={onClose}>
-                        <CloseRoundedIcon />
-                    </button>
+                    <p className={styles.subtitle}>Yangi guruh yaratish uchun quyidagi ma'lumotlarni kiriting.</p>
                 </div>
 
                 <div className={styles.body}>
@@ -101,7 +102,17 @@ export default function GroupModal({ isOpen, onClose, onSave }) {
 
                     <div className={styles.formGroup}>
                         <label>Boshlanish sanasi <span>*</span></label>
-                        <input type="date" />
+                        <div className={styles.dateInputWrapper}>
+                            <input 
+                                type="text" 
+                                placeholder="dd/mm/yyyy" 
+                                onFocus={(e) => e.target.type = 'date'}
+                                onBlur={(e) => {
+                                    if (!e.target.value) e.target.type = 'text';
+                                }}
+                            />
+                            <CalendarTodayRoundedIcon className={styles.calendarIcon} />
+                        </div>
                     </div>
 
                     <div className={styles.formGroup}>

@@ -105,6 +105,7 @@
 
 .dateInputWrapper {
     width: 100%;
+    position: relative;
     
     input {
         width: 100%;
@@ -119,11 +120,27 @@
         font-family: inherit;
 
         &::-webkit-calendar-picker-indicator {
+            opacity: 0; /* Hide default icon since we use a custom one or just let it overlay */
             cursor: pointer;
-            padding: 5px;
-            filter: invert(0.5);
+            position: absolute;
+            right: 0;
+            top: 0;
+            width: 40px;
+            height: 100%;
+            z-index: 2;
         }
     }
+}
+
+.calendarIcon {
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #111827; /* Dark icon like in mockup */
+    font-size: 20px !important;
+    pointer-events: none;
+    z-index: 1;
 }
 
 .addGroupBtn {
@@ -187,7 +204,7 @@
 
 .footer {
     padding: 16px 24px;
-    background: #f9fafb;
+    background: #ffffff;
     border-top: 1px solid #f1f5f9;
     display: flex;
     justify-content: center;

@@ -1,5 +1,8 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "./Students.module.scss";
+import { api } from '../../api/api';
+
+
 import FilterListRoundedIcon from '@mui/icons-material/FilterListRounded';
 import ArchiveOutlinedIcon from '@mui/icons-material/ArchiveOutlined';
 import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
@@ -9,132 +12,55 @@ import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
 import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import StudentModal from "../../components/UI/StudentModal/StudentModal";
 
-const studentsData = [
-    {
-        id: 1,
-        name: "Ali Valiyev",
-        avatar: null,
-        initial: "AV",
-        groups: ["N26", "n105"],
-        phone: "+998976541223",
-        email: "ali@gmail.com",
-        birthDate: "12.12.2010",
-        address: "Sirdaryo",
-        createdAt: "12.05.2026",
-        color: "#E0E7FF"
-    },
-    {
-        id: 2,
-        name: "Salim Qodirov",
-        avatar: null,
-        initial: "S",
-        groups: ["n105"],
-        phone: "+998977777777",
-        email: "salim@gmail.com",
-        birthDate: "14.01.2007",
-        address: "Buxoro",
-        createdAt: "14.05.2026",
-        color: "#F3E8FF"
-    },
-    {
-        id: 3,
-        name: "Bobur",
-        avatar: null,
-        initial: "B",
-        groups: ["n105"],
-        phone: "+998999999999",
-        email: "bobur@gmail.com",
-        birthDate: "14.03.2002",
-        address: "Toshkent",
-        createdAt: "14.05.2026",
-        color: "#E0F2FE"
-    },
-    {
-        id: 4,
-        name: "Qodir Salimov",
-        avatar: null,
-        initial: "Q",
-        groups: ["n105"],
-        phone: "+998911111111",
-        email: "qodir@gmail.com",
-        birthDate: "29.04.2026",
-        address: "O'zbekcha",
-        createdAt: "14.05.2026",
-        color: "#FCE7F3"
-    },
-    {
-        id: 5,
-        name: "Javohir Orifov",
-        avatar: null,
-        initial: "J",
-        groups: ["N26"],
-        phone: "+998991234567",
-        email: "javohir@gmail.com",
-        birthDate: "01.01.2005",
-        address: "Andijan",
-        createdAt: "16.05.2026",
-        color: "#DCFCE7"
-    },
-    {
-        id: 6,
-        name: "Malika Ahmedova",
-        avatar: null,
-        initial: "M",
-        groups: ["n105", "F12"],
-        phone: "+998909876543",
-        email: "malika@gmail.com",
-        birthDate: "20.05.2008",
-        address: "Namangan",
-        createdAt: "17.05.2026",
-        color: "#FEF9C3"
-    },
-    {
-        id: 7,
-        name: "Sardor Umirzoqov",
-        avatar: null,
-        initial: "S",
-        groups: ["UX1"],
-        phone: "+998934445566",
-        email: "sardor@gmail.com",
-        birthDate: "10.10.2003",
-        address: "Navoi",
-        createdAt: "18.05.2026",
-        color: "#F1F5F9"
-    },
-    {
-        id: 8,
-        name: "Diyora Ergasheva",
-        avatar: null,
-        initial: "D",
-        groups: ["n105"],
-        phone: "+998915556677",
-        email: "diyora@gmail.com",
-        birthDate: "15.06.2009",
-        address: "Fergana",
-        createdAt: "19.05.2026",
-        color: "#FDF2F8"
-    }
-];
 
 export default function Students() {
     const [isModalOpen, setIsModalOpen] = useState(false);
-
+    const [studentData, setStudentData] = useState([]);
+    const [page, setPage] = useState(1);
+    // const [ active , setActive ] = useState('');
     const toggleModal = () => setIsModalOpen(!isModalOpen);
+
+    function increment() {
+        setPage(page + 1);
+    }
+
+    function decrement() {
+        if (page <= 0) {
+            setPage(1)
+            return
+        }
+
+        setPage(page - 1)
+    }
+
+
+    useEffect(
+        () => {
+            api(`/students?page=${page}&limit=3`, {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('accessToken')}`
+                }
+            }).then(
+                res => {
+                    setStudentData(res.data.data);
+                }
+            )
+        }, [page]);
 
     return (
         <div className={styles.container}>
             <div className={styles.header}>
-                <div className={styles.titleSection}>
+                <div className={styles.headerTop}>
                     <h1 className={styles.title}>Talabalar</h1>
-                    <p className={styles.subtitle}>
-                        Ushbu sahifada siz Talabalar ro'yxatini va ularning ma'lumotlarini topasiz.
-                        Har bir Talaba ismi, fanlari va aloqa ma'lumotlari keltirilgan.
-                    </p>
+                    <button className={styles.addBtn} onClick={toggleModal}>
+                        <AddRoundedIcon fontSize="small" />
+                        Talaba qo'shish
+                    </button>
                 </div>
-                <button className={styles.addBtn} onClick={toggleModal}>
-                    <AddRoundedIcon />
-                    Talaba qo'shish
-                </button>
+                <p className={styles.subtitle}>
+                    Ushbu sahifada siz Talabalar ro'yxatini va ularning ma'lumotlarini topasiz.
+                    Har bir Talaba ismi, fanlari va aloqa ma'lumotlari keltirilgan.
+                </p>
             </div>
 
             <div className={styles.tableCard}>
@@ -172,36 +98,36 @@ export default function Students() {
                                 <th style={{ textAlign: 'right' }}>Amallar</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            {studentsData.map((student) => (
+                        <tbody className={styles.tbody}>
+                            {studentData.map((student) => (
                                 <tr key={student.id}>
                                     <td>
                                         <input type="checkbox" />
                                     </td>
                                     <td>
                                         <div className={styles.userInfo}>
-                                            {student.avatar ? (
+                                            {/* {student.avatar ? (
                                                 <img src={student.avatar} alt={student.name} className={styles.avatar} />
                                             ) : (
                                                 <div className={styles.initialAvatar} style={{ backgroundColor: student.color }}>
                                                     {student.initial}
                                                 </div>
-                                            )}
-                                            <span className={styles.userName}>{student.name}</span>
+                                            )} */}
+                                            <span className={styles.userName}>{student.full_name}</span>
                                         </div>
                                     </td>
                                     <td>
                                         <div className={styles.groups}>
                                             {student.groups.map((group, index) => (
-                                                <span key={index} className={styles.groupTag}>{group}</span>
+                                                <span key={index} className={styles.groupTag}>{group.name}</span>
                                             ))}
                                         </div>
                                     </td>
                                     <td>{student.phone}</td>
                                     <td>{student.email}</td>
-                                    <td>{student.birthDate}</td>
+                                    <td>{new Date(student.birth_date).toLocaleDateString()}</td>
                                     <td>{student.address}</td>
-                                    <td>{student.createdAt}</td>
+                                    <td>{new Date(student.created_at).toLocaleDateString()}</td>
                                     <td style={{ textAlign: 'right' }}>
                                         <div className={styles.actions}>
                                             <button className={styles.actionBtn}><VisibilityOutlinedIcon fontSize="small" /></button>
@@ -216,7 +142,7 @@ export default function Students() {
                 </div>
 
                 <div className={styles.pagination}>
-                    <button className={styles.pageArrow}>← Previous</button>
+                    <button onClick={decrement} className={styles.pageArrow}>← Previous</button>
                     <div className={styles.pageNumbers}>
                         <button className={`${styles.pageBtn} ${styles.active}`}>1</button>
                         <button className={styles.pageBtn}>2</button>
@@ -226,13 +152,13 @@ export default function Students() {
                         <button className={styles.pageBtn}>9</button>
                         <button className={styles.pageBtn}>10</button>
                     </div>
-                    <button className={styles.pageArrow}>Next →</button>
+                    <button onClick={increment} className={styles.pageArrow}>Next →</button>
                 </div>
             </div>
 
-            <StudentModal 
-                isOpen={isModalOpen} 
-                onClose={toggleModal} 
+            <StudentModal
+                isOpen={isModalOpen}
+                onClose={toggleModal}
                 onSave={() => {
                     console.log("Student saved");
                     toggleModal();

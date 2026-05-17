@@ -22,10 +22,10 @@
 .addBtn {
     display: flex;
     align-items: center;
-    gap: 8px;
     background: #6c35de;
     color: #ffffff;
     border: none;
+    gap: 2px;
     border-radius: 10px;
     padding: 10px 20px;
     font-size: 14px;
@@ -71,17 +71,17 @@
 .statsGrid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 24px;
+    gap: 16px;
 }
 
 .statCard {
     background: #ffffff;
-    border-radius: 16px;
-    padding: 20px;
+    border-radius: 12px;
+    padding: 16px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.02);
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 12px;
     position: relative;
 }
 
@@ -121,7 +121,7 @@
 }
 
 .statValue {
-    font-size: 32px;
+    font-size: 24px;
     font-weight: 700;
     color: #1a1a2e;
     margin: 0;
@@ -159,13 +159,37 @@
     overflow: hidden;
 }
 
-.tableWrapper {
-    overflow-x: auto;
-}
-
 .table {
     width: 100%;
     border-collapse: collapse;
+
+    tbody {
+        display: block;
+        overflow-y: scroll;
+        scrollbar-width: thin;
+        scrollbar-color: #e2e8f0 transparent;
+        height: 165px;
+
+        &::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        &::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        &::-webkit-scrollbar-thumb {
+            background: #e2e8f0;
+            border-radius: 8px;
+        }
+    }
+
+    thead,
+    tbody tr {
+        display: table;
+        width: 100%;
+        table-layout: fixed;
+    }
 
     th {
         text-align: left;
@@ -175,6 +199,13 @@
         color: #adb5bd;
         text-transform: uppercase;
         border-bottom: 1px solid #f8f9fa;
+        position: sticky;
+        /* ← добавь это */
+        top: 0;
+        /* ← и это */
+        background: #fff;
+        /* ← чтобы не просвечивали строки */
+        z-index: 1;
     }
 
     td {
@@ -187,8 +218,10 @@
 
     tr:last-child td {
         border-bottom: none;
+
     }
 }
+
 
 .statusCell {
     display: flex;
@@ -204,6 +237,7 @@
 
 .groupName {
     font-weight: 600;
+    white-space: nowrap;
 }
 
 .courseTag {
@@ -213,6 +247,8 @@
     border-radius: 20px;
     font-size: 12px;
     font-weight: 600;
+    white-space: nowrap;
+    display: inline-block;
 }
 
 .timeInfo {
@@ -235,7 +271,8 @@
     font-weight: 700;
 }
 
-.refreshIcon, .rowMoreIcon {
+.refreshIcon,
+.rowMoreIcon {
     color: #adb5bd;
     cursor: pointer;
     transition: color 0.2s;

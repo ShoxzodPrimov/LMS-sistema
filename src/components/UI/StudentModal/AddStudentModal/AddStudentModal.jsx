@@ -3,6 +3,7 @@ import styles from "./AddStudentModal.module.scss";
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import CloudUploadOutlinedIcon from '@mui/icons-material/CloudUploadOutlined';
+import CalendarTodayRoundedIcon from '@mui/icons-material/CalendarTodayRounded';
 import AddGroupModal from "../../TeacherModal/AddGroupModal/AddGroupModal";
 
 export default function AddStudentModal({ onClose, onSave }) {
@@ -30,7 +31,15 @@ export default function AddStudentModal({ onClose, onSave }) {
                 <div className={styles.formGroup}>
                     <label>Tug'ilgan sanasi</label>
                     <div className={styles.dateInputWrapper}>
-                        <input type="date" placeholder="dd/mm/yyyy" />
+                        <input 
+                            type="text" 
+                            placeholder="dd/mm/yyyy" 
+                            onFocus={(e) => e.target.type = 'date'}
+                            onBlur={(e) => {
+                                if (!e.target.value) e.target.type = 'text';
+                            }}
+                        />
+                        <CalendarTodayRoundedIcon className={styles.calendarIcon} />
                     </div>
                 </div>
 

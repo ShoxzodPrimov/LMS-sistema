@@ -38,13 +38,13 @@ export default function CourseModal({
                 onClick={(e) => e.stopPropagation()}
             >
                 <div className={styles.header}>
-                    <div className={styles.headerText}>
+                    <div className={styles.headerTop}>
                         <h2 className={styles.title}>{title}</h2>
-                        {subtitle && <p className={styles.subtitle}>{subtitle}</p>}
+                        <button className={styles.closeBtn} onClick={onClose}>
+                            <CloseRoundedIcon />
+                        </button>
                     </div>
-                    <button className={styles.closeBtn} onClick={onClose}>
-                        <CloseRoundedIcon />
-                    </button>
+                    {subtitle && <p className={styles.subtitle}>{subtitle}</p>}
                 </div>
 
                 <div className={styles.body}>
