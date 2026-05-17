@@ -11,10 +11,10 @@ import ChevronLeftRoundedIcon from '@mui/icons-material/ChevronLeftRounded';
 
 const menuItems = [
     { label: "Asosiy", icon: <HomeRoundedIcon />, path: "/dashboard" },
-    { label: "O'qituvchilar", icon: <PersonRoundedIcon />, path: "/teachers" },
-    { label: "Guruhlar", icon: <GroupRoundedIcon />, path: "/groups" },
-    { label: "Talabalar", icon: <DiamondRoundedIcon />, path: "/students" },
-    { label: "Sovg'alar", icon: <CardGiftcardRoundedIcon />, path: "/gifts" },
+    { label: "O'qituvchilar", icon: <PersonRoundedIcon />, path: "/dashboard/teachers" },
+    { label: "Guruhlar", icon: <GroupRoundedIcon />, path: "/dashboard/groups" },
+    { label: "Talabalar", icon: <DiamondRoundedIcon />, path: "/dashboard/students" },
+    { label: "Sovg'alar", icon: <CardGiftcardRoundedIcon />, path: "/dashboard/gifts" },
     { label: "Boshqarish", icon: <SettingsRoundedIcon />, path: "/management" },
 ];
 

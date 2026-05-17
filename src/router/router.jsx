@@ -28,23 +28,24 @@ export const router = createBrowserRouter([
         children: [
             {
                 path: '/dashboard',
-                element: <Dashboard />
+                element: <Dashboard />,
             },
+
             {
-                path: '/teachers',
+                path: '/dashboard/teachers',
                 element: <Teachers />
             },
             {
-                path: '/students',
+                path: '/dashboard/students',
                 element: <Students />
             },
             {
-                path: '/groups',
+                path: '/dashboard/groups',
                 element: <Groups />
             },
 
             {
-                path: '/gifts',
+                path: '/dashboard/gifts',
                 element: <Gifts />
             },
 

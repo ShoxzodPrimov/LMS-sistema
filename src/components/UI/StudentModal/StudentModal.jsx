@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import styles from "./StudentModal.module.scss";
 import { createPortal } from "react-dom";
 import AddStudentModal from "./AddStudentModal/AddStudentModal";
