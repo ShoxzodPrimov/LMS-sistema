@@ -19,11 +19,7 @@ export default function AddGroupModal({
     );
 
     useEffect(() => {
-        api.get(`/groups/all`, {
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem("accessToken")}`
-            }
-        }).then(
+        api.get(`/groups/all`).then(
             res => {
                 setGroups(res.data.data)
             }

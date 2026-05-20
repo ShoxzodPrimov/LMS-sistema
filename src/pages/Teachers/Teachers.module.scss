@@ -65,7 +65,7 @@
     background: #ffffff;
     border-radius: 16px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03);
-    padding: 20px;
+    padding: 20px 0;
     display: flex;
     flex-direction: column;
     gap: 20px;
@@ -77,6 +77,7 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+    padding: 0 20px;
 }
 
 .tableActions {
@@ -84,52 +85,46 @@
     gap: 12px;
 }
 
+
 .filterBtn,
 .archiveBtn {
     display: flex;
     align-items: center;
     gap: 8px;
-    background: #f8f9fa;
-    border: 1px solid #e9ecef;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
     border-radius: 8px;
     padding: 8px 16px;
     font-size: 14px;
     font-weight: 500;
     color: #4a4a6a;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: all 0.2s ease;
 
     &:hover {
-        background: #e9ecef;
+        background: #f8fafc;
+        border-color: #cbd5e1;
     }
 }
 
 .searchWrapper {
-    position: relative;
-    width: 190px;
-}
-
-.searchIcon {
-    position: absolute;
-    left: 10px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #adb5bd;
-    font-size: 18px;
+    width: 200px;
 }
 
 .searchInput {
     width: 100%;
-    padding: 8px 10px 8px 34px;
-    background: #f8f9fa;
-    border: 1px solid #e9ecef;
+    padding: 8px 14px;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
     border-radius: 8px;
     font-size: 13px;
     color: #1a1a2e;
     outline: none;
+    transition: all 0.2s ease;
 
     &:focus {
         border-color: #6c35de;
+        background: #ffffff;
     }
 
     &::placeholder {
@@ -156,8 +151,9 @@
     thead {
         display: block;
         width: 100%;
-        padding-right: 10px;
         flex-shrink: 0;
+        box-sizing: border-box;
+        background: #f8fafc;
     }
 
     tbody {
@@ -210,21 +206,24 @@
         width: 100%;
         align-items: center;
         border-bottom: 1px solid #f1f3f5;
+        box-sizing: border-box;
     }
 
+
     th {
-        background: #ffffff;
+        background: transparent;
         text-align: left;
-        padding: 12px 16px;
+        padding: 14px 12px;
         font-size: 13px;
         font-weight: 600;
-        color: #4a4a6a;
+        color: #475569;
     }
 
     td {
-        padding: 16px;
+        padding: 16px 12px;
         font-size: 14px;
         color: #1a1a2e;
+        text-align: left;
     }
 
     th,
@@ -234,36 +233,47 @@
         align-items: center;
         min-width: 0;
 
+        &:first-child {
+            padding-left: 20px;
+            padding-right: 0;
+        }
+        &:last-child {
+            padding-right: 20px;
+        }
+
         &:nth-child(1) {
             flex: 0 0 50px;
         }
 
         &:nth-child(2) {
-            flex: 2 1 200px;
+            flex: 1.8 1 180px;
+            padding-left: 0;
         }
 
         &:nth-child(3) {
-            flex: 2.5 1 240px;
+            flex: 1.2 1 100px;
         }
 
         &:nth-child(4) {
-            flex: 1.8 1 180px;
+            flex: 1.5 1 140px;
         }
 
         &:nth-child(5) {
-            flex: 2.2 1 220px;
+            flex: 2.2 1 200px;
+            white-space: normal;
+            word-break: break-all;
         }
 
         &:nth-child(6) {
-            flex: 1.5 1 150px;
+            flex: 1.5 1 120px;
         }
 
         &:nth-child(7) {
-            flex: 1.5 1 150px;
+            flex: 1.5 1 120px;
         }
 
         &:nth-child(8) {
-            flex: 1.5 1 150px;
+            flex: 1.2 1 110px;
             justify-content: flex-end;
         }
     }
@@ -306,31 +316,32 @@
 }
 
 .groupTag {
-    background: #f1f3f5;
-    padding: 4px 8px;
-    border-radius: 6px;
+    background: #f1f5f9;
+    padding: 4px 12px;
+    border-radius: 12px;
     font-size: 12px;
     font-weight: 500;
-    color: #4a4a6a;
+    color: #475569;
 }
 
 .actions {
     display: flex;
-    gap: 8px;
+    gap: 4px;
     justify-content: flex-end;
+    align-items: center;
+    transform: translateX(12px);
 }
 
 .actionBtn {
     background: none;
     border: none;
-    padding: 6px;
-    border-radius: 6px;
-    color: #adb5bd;
+    padding: 4px;
+    color: black;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: background 0.2s, color 0.2s;
+    transition: all 0.2s ease;
 
     &:hover {
         background: #f8f9fa;
@@ -338,26 +349,35 @@
     }
 }
 
+.editBtn {
+    color: #6c35de;
+
+    &:hover {
+        color: #5a2cc0;
+    }
+}
+
 .pagination {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding-top: 10px;
+    padding: 10px 20px 0 20px;
 }
 
 .pageArrow {
-    background: none;
-    border: 1px solid #e9ecef;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
     border-radius: 8px;
     padding: 8px 16px;
     font-size: 14px;
     font-weight: 500;
-    color: #4a4a6a;
+    color: #475569;
     cursor: pointer;
-    transition: background 0.2s;
+    transition: all 0.2s ease;
 
     &:hover {
-        background: #f8f9fa;
+        background: #f8fafc;
+        border-color: #cbd5e1;
     }
 }
 

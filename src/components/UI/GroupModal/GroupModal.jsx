@@ -83,11 +83,7 @@ export default function GroupModal({ isOpen, onClose, onSave }) {
             document.body.style.overflow = 'hidden';
             
             // Fetch courses dynamically for the Kurs dropdown select
-            api.get('/courses', {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem('accessToken')}`
-                }
-            }).then(res => {
+            api.get('/courses').then(res => {
                 const coursesList = res.data?.data || res.data || [];
                 setCourses(coursesList);
             }).catch(err => {
@@ -95,11 +91,7 @@ export default function GroupModal({ isOpen, onClose, onSave }) {
             });
 
             // Fetch rooms dynamically for the Xona dropdown select
-            api.get('/rooms', {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem('accessToken')}`
-                }
-            }).then(res => {
+            api.get('/rooms').then(res => {
                 const roomsList = res.data?.data || res.data || [];
                 setRooms(roomsList);
             }).catch(err => {
@@ -160,11 +152,7 @@ export default function GroupModal({ isOpen, onClose, onSave }) {
             students: students.map(Number)
         };
 
-        api.post('/groups', payload, {
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem("accessToken")}`
-            }
-        }).then(
+        api.post('/groups', payload).then(
             res => {
                 console.log("Group created successfully:", res.status);
                 if (onSave) {
@@ -286,17 +274,6 @@ export default function GroupModal({ isOpen, onClose, onSave }) {
                             type="time" 
                             name="startTime" 
                             value={groupData.startTime} 
-                            onChange={handleInputChange} 
-                        />
-                    </div>
-
-                    <div className={styles.formGroup}>
-                        <label>Maksimal talabalar soni <span>*</span></label>
-                        <input 
-                            type="number" 
-                            name="maxStudent" 
-                            placeholder="15" 
-                            value={groupData.maxStudent} 
                             onChange={handleInputChange} 
                         />
                     </div>

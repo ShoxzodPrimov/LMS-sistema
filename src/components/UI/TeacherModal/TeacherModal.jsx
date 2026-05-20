@@ -95,7 +95,6 @@ export default function TeacherModal({
 
         api.post('/teachers', formData, {
             headers: {
-                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
                 "Content-Type": "multipart/form-data"
             }
         }).then(

@@ -24,13 +24,19 @@ export default function Students() {
 
     const toggleModal = () => setIsModalOpen(!isModalOpen);
 
+    const formatDate = (dateString) => {
+        if (!dateString) return "-";
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return "-";
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}.${month}.${year}`;
+    };
+
     const fetchStudents = (targetPage) => {
         setIsLoading(true);
-        return api(`/students?page=${targetPage}&limit=3`, {
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem('accessToken')}`
-            }
-        }).then(
+        return api(`/students?page=${targetPage}&limit=3`).then(
             res => {
                 const data = res.data.data || [];
 
@@ -148,9 +154,7 @@ export default function Students() {
                     <table className={styles.table}>
                         <thead>
                             <tr>
-                                <th style={{ width: '40px' }}>
-                                    <input type="checkbox" />
-                                </th>
+                                <th><input type="checkbox" /></th>
                                 <th>Nomi ↓</th>
                                 <th>Guruh</th>
                                 <th>Telefon raqamlari</th>
@@ -158,11 +162,11 @@ export default function Students() {
                                 <th>Tug'ilgan sanasi</th>
                                 <th>Manzil</th>
                                 <th>Yaratilgan sana</th>
-                                <th style={{ textAlign: 'right' }}>Amallar</th>
+                                <th>Amallar</th>
                             </tr>
                         </thead>
                         <tbody className={styles.tbody}>
-                            {studentData.map((student) => (
+                            {studentData.slice(1).map((student) => (
                                 <tr key={student.id}>
                                     <td>
                                         <input type="checkbox" />
@@ -180,10 +184,10 @@ export default function Students() {
                                         </div>
                                     </td>
                                     <td>{student.phone}</td>
-                                    <td>{student.email}</td>
-                                    <td>{new Date(student.birth_date).toLocaleDateString()}</td>
-                                    <td>{student.address}</td>
-                                    <td>{new Date(student.created_at).toLocaleDateString()}</td>
+                                    <td style={{paddingLeft:'16px'}}>{student.email}</td>
+                                    <td style={{paddingLeft:'20px'}}>{formatDate(student.birth_date)}</td>
+                                    <td style={{paddingLeft:'18px'}}>{student.address}</td>
+                                    <td style={{paddingLeft:'20px'}}>{formatDate(student.created_at)}</td>
                                     <td style={{ textAlign: 'right' }}>
                                         <div className={styles.actions}>
                                             <button className={styles.actionBtn}><VisibilityOutlinedIcon fontSize="small" /></button>

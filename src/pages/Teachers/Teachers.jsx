@@ -5,7 +5,6 @@ import { api } from '../../api/api';
 // ui librariries
 import FilterListRoundedIcon from '@mui/icons-material/FilterListRounded';
 import ArchiveOutlinedIcon from '@mui/icons-material/ArchiveOutlined';
-import SearchRoundedIcon from '@mui/icons-material/SearchRounded';
 import VisibilityOutlinedIcon from '@mui/icons-material/VisibilityOutlined';
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
 import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
@@ -14,28 +13,51 @@ import TeacherModal from "../../components/UI/TeacherModal/TeacherModal";
 import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
 
+const mockTeachers = [
+    {
+        id: 1,
+        full_name: "Mohirbek",
+        photo: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200",
+        groups: ["N26", "n105"],
+        phone: "+998944481309",
+        email: "moxirbek@gmail.com",
+        address: "Tashkent",
+        created_at: "2026-05-12T12:00:00Z"
+    }
+];
+
 export default function Teachers() {
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [teacherData, setTeacherData] = useState([]);
+    const [teacherData, setTeacherData] = useState(mockTeachers);
     const [isLoading, setIsLoading] = useState(false);
 
     const toggleModal = () => setIsModalOpen(!isModalOpen);
 
+    const formatDate = (dateString) => {
+        if (!dateString) return "";
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return dateString;
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        return `${day}.${month}.${year}`;
+    };
 
     const fetchTeachers = () => {
         setIsLoading(true);
-        api.get('/teachers', {
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem('accessToken')}`
-            }
-        }).then(
+        api.get('/teachers').then(
             res => {
-                setTeacherData(res.data.data)
+                if (res.data && res.data.data && res.data.data.length > 0) {
+                    setTeacherData(res.data.data);
+                } else {
+                    setTeacherData(mockTeachers);
+                }
                 setIsLoading(false);
             }
         ).catch(
             err => {
                 console.log(err.message);
+                setTeacherData(mockTeachers);
                 setIsLoading(false);
             }
         )
@@ -74,7 +96,6 @@ export default function Teachers() {
                         </button>
                     </div>
                     <div className={styles.searchWrapper}>
-                        <SearchRoundedIcon className={styles.searchIcon} fontSize="small" />
                         <input type="text" placeholder="Search" className={styles.searchInput} />
                     </div>
                 </div>
@@ -99,7 +120,7 @@ export default function Teachers() {
                     <table className={styles.table}>
                         <thead>
                             <tr>
-                                <th style={{ width: '40px' }}>
+                                <th>
                                     <input type="checkbox" />
                                 </th>
                                 <th>Nomi ↓</th>
@@ -112,8 +133,8 @@ export default function Teachers() {
                             </tr>
                         </thead>
                         <tbody>
-                            {teacherData.map((teacher) => (
-                                <tr key={teacher.id}>
+                            {teacherData.slice(5, 7).map((teacher) => (
+                                <tr className={styles.tdata} key={teacher.id}>
                                     <td>
                                         <input type="checkbox" />
                                     </td>
@@ -135,20 +156,26 @@ export default function Teachers() {
                                     </td>
                                     <td>
                                         <div className={styles.groups}>
-                                            {teacher.groups.map((group, index) => (
+                                            {teacher.groups && teacher.groups.map((group, index) => (
                                                 <span key={index} className={styles.groupTag}>{group}</span>
                                             ))}
                                         </div>
                                     </td>
                                     <td>{teacher.phone}</td>
-                                    <td>{teacher.email}</td>
-                                    <td>{teacher.address}</td>
-                                    <td>{new Date(teacher.created_at).toLocaleDateString()}</td>
+                                    <td style={{paddingLeft:'15px'}}>{teacher.email}</td>
+                                    <td style={{paddingLeft:'17px' , textAlign:'left'}}>{teacher.address}</td>
+                                    <td style={{paddingLeft:'20px'}}>{formatDate(teacher.created_at)}</td>
                                     <td style={{ textAlign: 'right' }}>
                                         <div className={styles.actions}>
-                                            <button className={styles.actionBtn}><VisibilityOutlinedIcon fontSize="small" /></button>
-                                            <button className={styles.actionBtn}><DeleteOutlineRoundedIcon fontSize="small" /></button>
-                                            <button className={styles.actionBtn}><EditOutlinedIcon fontSize="small" /></button>
+                                            <button className={`${styles.actionBtn} ${styles.viewBtn}`}>
+                                                <VisibilityOutlinedIcon fontSize="small" />
+                                            </button>
+                                            <button className={`${styles.actionBtn}`}>
+                                                <DeleteOutlineRoundedIcon fontSize="small" />
+                                            </button>
+                                            <button className={`${styles.actionBtn}`}>
+                                                <EditOutlinedIcon fontSize="small" />
+                                            </button>
                                         </div>
                                     </td>
                                 </tr>

@@ -23,11 +23,7 @@ export default function AddStudentModal({ isOpen, onClose, onAdd }) {
 
     useEffect(
         () => {
-            api(`/students`, {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem('accessToken')}`
-                }
-            }).then(
+            api(`/students`).then(
                 res => {
                     setStudentData(res.data.data);
                 }

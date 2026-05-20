@@ -2,6 +2,7 @@ import { createBrowserRouter, Navigate } from "react-router-dom";
 import { lazy, Suspense } from "react";
 import Loader from "../components/UI/Loader/Loader";
 import ProtectRouter from "../components/protect/ProtectRouter";
+import GusetRoute from "../components/protect/GuestROute";
 
 // Lazy Loaded Components
 const Login = lazy(() => import("../pages/Login/Login"));
@@ -26,9 +27,11 @@ export const router = createBrowserRouter([
     {
         path: '/login',
         element: (
-            <Suspense fallback={<Loader />}>
-                <Login />
-            </Suspense>
+            <GusetRoute>
+                <Suspense fallback={<Loader />}>
+                    <Login />
+                </Suspense>
+            </GusetRoute>
         )
     },
     {

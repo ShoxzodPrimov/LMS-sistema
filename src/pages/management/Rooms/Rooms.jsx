@@ -17,11 +17,7 @@ export default function Rooms() {
 
     const fetchRooms = () => {
         setIsLoading(true);
-        api.get('/rooms', {
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem("accessToken")}`
-            }
-        }).then(
+        api.get('/rooms').then(
             res => {
                 setRooms(res.data.data)
                 setIsLoading(false);
@@ -80,7 +76,7 @@ export default function Rooms() {
                         <CircularProgress sx={{ color: '#6c35de' }} />
                     </Box>
                 )}
-                {rooms.map((room) => (
+                {rooms.slice(6, 12).map((room) => (
                     <div key={room.id} className={styles.card}>
                         <div className={styles.cardHeader}>
                             <h3 className={styles.roomName}>{room.name}</h3>
@@ -116,10 +112,6 @@ export default function Rooms() {
                     api.post('/rooms', {
                         name: roomData.name,
                         capacity: Number(roomData.capacity)
-                    }, {
-                        headers: {
-                            Authorization: `Bearer ${localStorage.getItem("accessToken")}`
-                        }
                     }).then(
                         res => {
                             console.log(res.status);

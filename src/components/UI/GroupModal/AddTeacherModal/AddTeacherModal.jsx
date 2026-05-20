@@ -22,11 +22,7 @@ export default function AddTeacherModal({ isOpen, onClose, onAdd }) {
     }, [isOpen]);
 
     useEffect(() => {
-        api.get('/teachers', {
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem('accessToken')}`
-            }
-        }).then(
+        api.get('/teachers').then(
             res => {
                 setTeacherData(res.data.data)
             }

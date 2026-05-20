@@ -23,11 +23,7 @@ export default function Courses() {
 
     const fetchCourses = () => {
         setIsLoading(true);
-        api.get('/courses', {
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem("accessToken")}`
-            }
-        }).then(
+        api.get('/courses').then(
             res => {
                 setCourses(res.data.data);
                 setIsLoading(false);
@@ -44,11 +40,7 @@ export default function Courses() {
         e.preventDefault();
 
         console.log(courseData)
-        api.post('/courses', courseData, {
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem("accessToken")}`
-            }
-        }).then(
+        api.post('/courses', courseData).then(
             res => {
                 console.log(res.status);
                 fetchCourses();
@@ -99,7 +91,7 @@ export default function Courses() {
                         <CircularProgress sx={{ color: '#6c35de' }} />
                     </Box>
                 )}
-                {courses.map((course) => (
+                {courses.slice(6 , 7).map((course) => (
                     <div
                         key={course.id}
                         className={styles.card}

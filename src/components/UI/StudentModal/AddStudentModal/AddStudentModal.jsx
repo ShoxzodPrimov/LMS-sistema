@@ -79,7 +79,6 @@ export default function AddStudentModal({ isOpen, onClose, onSave }) {
 
         api.post('/students', formData, {
             headers: {
-                Authorization: `Bearer ${localStorage.getItem("accessToken")}`,
                 "Content-Type": "multipart/form-data"
             }
         }).then(

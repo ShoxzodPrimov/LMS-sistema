@@ -101,19 +101,19 @@
     justify-content: center;
     width: 26px;
     height: 26px;
-    background: #ffffff;
-    color: #64748b;
-    border: 1px solid #e2e8f0;
+    background: #6c35de;
+    color: #ffffff;
+    border: 2.5px solid #ffffff;
     border-radius: 6px;
     cursor: pointer;
     transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
     z-index: 10;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
 
     &:hover {
-        background: #f8fafc;
-        color: #0f172a;
-        border-color: #cbd5e1;
+        background: #5a2cc0;
+        color: #ffffff;
+        border-color: #ffffff;
     }
 }
 
