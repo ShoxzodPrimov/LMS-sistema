@@ -12,6 +12,8 @@ import RefreshRoundedIcon from '@mui/icons-material/RefreshRounded';
 import ArchiveOutlinedIcon from '@mui/icons-material/ArchiveOutlined';
 import Switch from '@mui/material/Switch';
 import GroupModal from "../../components/UI/GroupModal/GroupModal";
+import EditRoundedIcon from '@mui/icons-material/EditRounded';
+import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
 import CircularProgress from '@mui/material/CircularProgress';
 import Box from '@mui/material/Box';
 
@@ -21,6 +23,7 @@ export default function Groups() {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [groups, setGroup] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
+    const [openMenuId, setOpenMenuId] = useState(null);
 
     const toggleModal = () => setIsModalOpen(!isModalOpen);
 
@@ -42,6 +45,34 @@ export default function Groups() {
     useEffect(() => {
         fetchGroups();
     }, []);
+
+    useEffect(() => {
+        const handleDocClick = () => setOpenMenuId(null);
+        const handleKeyDown = (e) => {
+            if (e.key === 'Escape') setOpenMenuId(null);
+        }
+
+        document.addEventListener('click', handleDocClick);
+        document.addEventListener('keydown', handleKeyDown);
+
+        return () => {
+            document.removeEventListener('click', handleDocClick);
+            document.removeEventListener('keydown', handleKeyDown);
+        }
+    }, []);
+
+    const handleEdit = (group) => {
+        // navigate to edit page or open edit modal
+        navigate(`/dashboard/groups/${group.id}/edit`);
+    }
+
+    const handleDelete = (group) => {
+        const confirmed = window.confirm("Guruhni o'chirishni xohlaysizmi?");
+        if (!confirmed) return;
+        api.delete(`/groups/${group.id}`).then(() => {
+            fetchGroups();
+        }).catch(err => console.log(err.message));
+    }
 
     return (
         <div className={styles.container}>
@@ -164,6 +195,7 @@ export default function Groups() {
                                             <Switch
                                                 defaultChecked={group.status}
                                                 size="small"
+                                                onClick={(e) => e.stopPropagation()}
                                                 sx={{
                                                     width: 44,
                                                     height: 24,
@@ -218,8 +250,20 @@ export default function Groups() {
                                         </div>
                                     </td>
                                     <td><span className={styles.studentCount}>{group.students.length}</span></td>
-                                    <td style={{ textAlign: 'right' }}>
-                                        <MoreVertRoundedIcon className={styles.rowMoreIcon} />
+                                    <td style={{ textAlign: 'right', position: 'relative' }}>
+                                        <MoreVertRoundedIcon className={styles.rowMoreIcon} onClick={(e) => { e.stopPropagation(); setOpenMenuId(openMenuId === group.id ? null : group.id); }} style={{ cursor: 'pointer' }} />
+                                        {openMenuId === group.id && (
+                                            <div className={styles.rowMenu} onClick={(e) => e.stopPropagation()}>
+                                                <button className={styles.menuButton} onClick={() => handleEdit(group)}>
+                                                    <EditRoundedIcon fontSize="small" />
+                                                    <span>Edit</span>
+                                                </button>
+                                                <button className={styles.menuButton} onClick={() => handleDelete(group)}>
+                                                    <DeleteOutlineRoundedIcon fontSize="small" />
+                                                    <span>Delete</span>
+                                                </button>
+                                            </div>
+                                        )}
                                     </td>
                                 </tr>
                             ))}

@@ -1,7 +1,9 @@
 import axios from 'axios';
+const endpoint = import.meta.env.VITE_API_KEY;
+
 
 export const api = axios.create({
-  baseURL: 'https://najot-edu.softwareengineer.uz/api/v1',
+  baseURL: endpoint,
   timeout: 10000,
 })
 

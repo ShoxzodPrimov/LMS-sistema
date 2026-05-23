@@ -508,3 +508,36 @@
         transform: scale(1.15);
     }
 }
+
+.rowMenu {
+    position: absolute;
+    right: 8px;
+    top: 28px;
+    background: #ffffff;
+    border: 1px solid #e6edf6;
+    box-shadow: 0 6px 18px rgba(16,24,40,0.08);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    padding: 8px;
+    z-index: 30;
+    min-width: 120px;
+}
+
+.menuButton {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px;
+    background: transparent;
+    border: none;
+    color: #0f172a;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 6px;
+
+    &:hover {
+        background: #f8fafc;
+    }
+}
