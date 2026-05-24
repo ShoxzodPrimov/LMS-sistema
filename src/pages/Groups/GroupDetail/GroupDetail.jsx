@@ -1,13 +1,14 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useNavigate, useSearchParams } from "react-router-dom";
+import { api } from "../../../api/api";
 import styles from "./GroupDetail.module.scss";
 import ArrowBackIosNewRoundedIcon from '@mui/icons-material/ArrowBackIosNewRounded';
 import AssessmentOutlinedIcon from '@mui/icons-material/AssessmentOutlined';
 import KeyboardArrowLeftRoundedIcon from '@mui/icons-material/KeyboardArrowLeftRounded';
 import KeyboardArrowRightRoundedIcon from '@mui/icons-material/KeyboardArrowRightRounded';
-import PersonOutlineRoundedIcon from '@mui/icons-material/PersonOutlineRounded';
-import TimerOutlinedIcon from '@mui/icons-material/TimerOutlined';
-import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlineRounded';
+// import PersonOutlineRoundedIcon from '@mui/icons-material/PersonOutlineRounded';
+// import TimerOutlinedIcon from '@mui/icons-material/TimerOutlined';
+// import CheckCircleOutlineRoundedIcon from '@mui/icons-material/CheckCircleOutlineRounded';
 import MoreVertRoundedIcon from '@mui/icons-material/MoreVertRounded';
 
 export default function GroupDetail() {
@@ -16,6 +17,59 @@ export default function GroupDetail() {
     const [searchParams, setSearchParams] = useSearchParams();
     const [currentMonth, setCurrentMonth] = useState(0);
     const [showAllMonths, setShowAllMonths] = useState(false);
+    const [OverallLessons] = useState([]);    
+    const [schedules, setSchedules] = useState([]);
+    const [groupDetails, setGroupDetails] = useState(null);
+    
+    useEffect(() => {
+        const fetchSchedules = async () => {
+            try {
+                const res = await api.get(`/groups/${id}/schedules`);
+                console.log(res)
+                const data = res.data;
+                // data is an array of objects, each object can have keys "1", "2", "3"... 
+                // representing study months
+                const formattedSchedules = [];
+                data.forEach((item) => {
+                    const keys = Object.keys(item).sort((a, b) => Number(a) - Number(b));
+                    keys.forEach((key) => {
+                        const value = item[key];
+                        formattedSchedules.push({
+                            id: key,
+                            label: `${key}-o'quv oyi`,
+                            isCurrent: value.isActive,
+                            days: value.days.map((d, dIdx) => ({
+                                id: `${key}-${dIdx}`,
+                                day: d.day,
+                                month: d.month,
+                                isCompleted: d.isCompleted
+                            }))
+                        });
+                    });
+                });
+                setSchedules(formattedSchedules);
+            } catch (err) {
+                console.error("Error fetching schedules:", err);
+            }
+        };
+        if (id) {
+            fetchSchedules();
+        }
+    }, [id]);
+
+    useEffect(() => {
+        const fetchGroupDetails = async () => {
+            try {
+                const res = await api.get(`/groups/one/${id}`);
+                setGroupDetails(res.data.data || res.data);
+            } catch (err) {
+                console.error("Error fetching group details:", err);
+            }
+        };
+        if (id) {
+            fetchGroupDetails();
+        }
+    }, [id]);
     
     const tabIndex = searchParams.get("tab") || "0";
     let activeTab = "Ma'lumotlar";
@@ -23,35 +77,65 @@ export default function GroupDetail() {
     if (tabIndex === "2") activeTab = "Akademik davomati";
 
     const [activeSubTab, setActiveSubTab] = useState("Uyga vazifa");
+    const [showAllSchedules, setShowAllSchedules] = useState(false);
 
     const handleTabChange = (index) => {
         setSearchParams({ tab: index });
     };
 
-    // Fake data based on the screenshot provided
+    const dayTranslations = {
+        MONDAY: "Du",
+        TUESDAY: "Se",
+        WEDNESDAY: "Ch",
+        THURSDAY: "Pa",
+        FRIDAY: "Ju",
+        SATURDAY: "Sha",
+        SUNDAY: "Yak"
+    };
+    const translateDays = (days) => {
+        if (!days || !Array.isArray(days)) return "";
+        return days.map(d => dayTranslations[d] || d).join("/");
+    };
+
+    const formatDate = (dateString) => {
+        if (!dateString) return "";
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return "";
+        const months = ["Yan", "Fev", "Mar", "Apr", "May", "Iyun", "Iyul", "Avg", "Sen", "Okt", "Noy", "Dek"];
+        const day = String(date.getDate()).padStart(2, '0');
+        return `${day} ${months[date.getMonth()]}, ${date.getFullYear()}`;
+    };
+
+    const calculateEndTime = (timeStr, hoursToAdd = 2) => {
+        if (!timeStr) return "";
+        const parts = timeStr.split(":");
+        const hours = parseInt(parts[0], 10) || 0;
+        const minutes = parseInt(parts[1], 10) || 0;
+        const date = new Date();
+        date.setHours(hours + hoursToAdd, minutes);
+        if (isNaN(date.getTime())) return "";
+        const endHours = String(date.getHours()).padStart(2, '0');
+        const endMinutes = String(date.getMinutes()).padStart(2, '0');
+        return `${endHours}:${endMinutes}`;
+    };
+
+    const calculateEndDate = (dateStr, monthsToAdd) => {
+        if (!dateStr) return "";
+        const date = new Date(dateStr);
+        if (isNaN(date.getTime())) return "";
+        const parsedMonths = parseInt(monthsToAdd, 10) || 0;
+        date.setMonth(date.getMonth() + parsedMonths);
+        return date.toISOString(); // Format back to ISO so formatDate can parse it
+    };
+
+    // Fake data for tabs that don't have API yet
     const fakeGroupData = {
-        name: "Bootcamp Full Stack N26",
-        status: "Aktiv",
-        mentors: [
-            {
-                id: 1,
-                name: "Mohirbek",
-                role: "Teacher",
-                image: "https://ui-avatars.com/api/?name=Mohirbek&background=f8fafc&color=3b82f6&size=128" // Default avatar
-            }
-        ],
-        parameters: {
-            course: "Backend",
-            averageAge: 21,
-            capacity: 20,
-            currentStudents: 5,
-            lessonsPerMonth: 20,
-            durationMonths: 6.0,
-            totalLessons: 20
-        },
-        schedule: [
-            { id: 1, teacher: "Mohirbek", days: "Du/Se/Ch/Pa/Ju", time: "09:30 dan - 12:30 gacha", period: "15 Yan, 2026 - 27 Iyun, 2026", room: "F2 Autodesk // 18" },
-            { id: 2, teacher: "+++Yusupova Barchinoy", days: "Du/Se/Ch/Pa/Ju", time: "08:00 dan - 09:30 gacha", period: "15 Yan, 2026 - 27 Iyun, 2026", room: "F2 Autodesk // 18" }
+        lessons: [
+            { id: 1, number: 1, title: "HTML elementlari va teglari", type: "Dars", date: "15 Yan, 2026 // 09:30" },
+            { id: 2, number: 2, title: "CSS selectors", type: "Dars", date: "17 Yan, 2026 // 09:30" },
+            { id: 3, number: 3, title: "Flexbox layout model", type: "Dars", date: "20 Yan, 2026 // 09:30" },
+            { id: 4, number: 4, title: "Git and Github", type: "Dars", date: "22 Yan, 2026 // 09:30" },
+            { id: 5, number: 5, title: "Javascript basics", type: "Dars", date: "25 Yan, 2026 // 09:30" }
         ],
         calendarDays: [
             { id: 1, day: 2, month: "May", active: true },
@@ -67,52 +151,6 @@ export default function GroupDetail() {
             { id: 11, day: 26, month: "May", active: true },
             { id: 12, day: 28, month: "May", active: true },
             { id: 13, day: 30, month: "May", active: true }
-        ],
-        studyMonths: [
-            {
-                label: "1-o'quv oyi",
-                isCurrent: true,
-                days: [
-                    { id: 1, day: 2, month: "May" },
-                    { id: 2, day: 5, month: "May" },
-                    { id: 3, day: 7, month: "May" },
-                    { id: 4, day: 9, month: "May" },
-                    { id: 5, day: 12, month: "May" },
-                    { id: 6, day: 14, month: "May" },
-                    { id: 7, day: 16, month: "May" },
-                    { id: 8, day: 19, month: "May" },
-                    { id: 9, day: 21, month: "May" },
-                    { id: 10, day: 23, month: "May" },
-                    { id: 11, day: 26, month: "May" },
-                    { id: 12, day: 28, month: "May" },
-                    { id: 13, day: 30, month: "May" }
-                ]
-            },
-            {
-                label: "2-o'quv oyi",
-                isCurrent: false,
-                days: [
-                    { id: 14, day: 2, month: "Jun" },
-                    { id: 15, day: 4, month: "Jun" },
-                    { id: 16, day: 6, month: "Jun" },
-                    { id: 17, day: 9, month: "Jun" },
-                    { id: 18, day: 11, month: "Jun" },
-                    { id: 19, day: 13, month: "Jun" },
-                    { id: 20, day: 16, month: "Jun" },
-                    { id: 21, day: 18, month: "Jun" },
-                    { id: 22, day: 20, month: "Jun" },
-                    { id: 23, day: 23, month: "Jun" },
-                    { id: 24, day: 25, month: "Jun" },
-                    { id: 25, day: 27, month: "Jun" }
-                ]
-            }
-        ],
-        lessons: [
-            { id: 1, number: 1, title: "HTML elementlari va teglari", type: "Dars", date: "15 Yan, 2026 // 09:30" },
-            { id: 2, number: 2, title: "CSS selectors", type: "Dars", date: "17 Yan, 2026 // 09:30" },
-            { id: 3, number: 3, title: "Flexbox layout model", type: "Dars", date: "20 Yan, 2026 // 09:30" },
-            { id: 4, number: 4, title: "Git and Github", type: "Dars", date: "22 Yan, 2026 // 09:30" },
-            { id: 5, number: 5, title: "Javascript basics", type: "Dars", date: "25 Yan, 2026 // 09:30" }
         ]
     };
 
@@ -123,8 +161,8 @@ export default function GroupDetail() {
                     <button className={styles.backBtn} onClick={() => navigate("/dashboard/groups")}>
                         <ArrowBackIosNewRoundedIcon fontSize="small" />
                     </button>
-                    <h1>{fakeGroupData.name}</h1>
-                    <span className={styles.statusTag}>{fakeGroupData.status}</span>
+                    <h1>{groupDetails?.name || ""}</h1>
+                    <span className={styles.statusTag}>{groupDetails?.status || "Aktiv"}</span>
                 </div>
                 <button className={styles.statsBtn}>
                     <AssessmentOutlinedIcon fontSize="small" />
@@ -161,11 +199,15 @@ export default function GroupDetail() {
                                 <h3>Mentors</h3>
                             </div>
                             <div className={styles.cardBody}>
-                                {fakeGroupData.mentors.map(mentor => (
-                                    <div key={mentor.id} className={mentor.role === "Teacher" ? styles.mentorItem : styles.assistantItem}>
-                                        <img src={mentor.image} alt={mentor.name} className={styles.mentorAvatar} />
-                                        <span className={styles.mentorRole}>{mentor.role}</span>
-                                        <span className={styles.mentorName}>{mentor.name}</span>
+                                {(groupDetails?.teachers || []).map((mentor, index) => (
+                                    <div key={mentor.id || index} className={styles.mentorItem}>
+                                        <img 
+                                            src={mentor.image || `https://ui-avatars.com/api/?name=${mentor.full_name || mentor.name || 'MO'}&background=f8fafc&color=3b82f6&size=128`} 
+                                            alt={mentor.full_name || mentor.name} 
+                                            className={styles.mentorAvatar} 
+                                        />
+                                        <span className={styles.mentorRole}>Teacher</span>
+                                        <span className={styles.mentorName}>{mentor.full_name || mentor.name}</span>
                                     </div>
                                 ))}
                             </div>
@@ -178,31 +220,31 @@ export default function GroupDetail() {
                             <div className={styles.cardBody}>
                                 <div className={styles.paramRow}>
                                     <span>Yo'nalish</span>
-                                    <strong>{fakeGroupData.parameters.course}</strong>
+                                    <strong>{groupDetails?.course?.name || ""}</strong>
                                 </div>
                                 <div className={styles.paramRow}>
                                     <span>O'rtacha yosh</span>
-                                    <strong>{fakeGroupData.parameters.averageAge} yosh</strong>
+                                    <strong>{groupDetails?.averageAge || "21"} yosh</strong>
                                 </div>
                                 <div className={styles.paramRow}>
                                     <span>Sig'imi</span>
-                                    <strong>{fakeGroupData.parameters.capacity} ta</strong>
+                                    <strong>{groupDetails?.capacity || "20"} ta</strong>
                                 </div>
                                 <div className={styles.paramRow}>
                                     <span>Hozirgi o'quvchilar</span>
-                                    <strong>{fakeGroupData.parameters.currentStudents} ta</strong>
+                                    <strong>{groupDetails?.student_count ?? "0"} ta</strong>
                                 </div>
                                 <div className={styles.paramRow}>
                                     <span>Darslar soni (1 oyda)</span>
-                                    <strong>{fakeGroupData.parameters.lessonsPerMonth} ta</strong>
+                                    <strong>{schedules.length > 0 ? Math.round(schedules.reduce((sum, m) => sum + m.days.length, 0) / schedules.length) : "0"} ta</strong>
                                 </div>
                                 <div className={styles.paramRow}>
                                     <span>Kurs davomiyligi</span>
-                                    <strong>{fakeGroupData.parameters.durationMonths} oy</strong>
+                                    <strong>{groupDetails?.course?.duration_month ?? "0"} oy</strong>
                                 </div>
                                 <div className={styles.paramRow}>
                                     <span>Darslar soni (Jami)</span>
-                                    <strong>{fakeGroupData.parameters.totalLessons} ta</strong>
+                                    <strong>{schedules.reduce((sum, m) => sum + m.days.length, 0)} ta</strong>
                                 </div>
                             </div>
                         </div>
@@ -210,30 +252,45 @@ export default function GroupDetail() {
 
                     <div className={styles.scheduleSection}>
                         <h2>Dars jadvali</h2>
-                        <div className={styles.scheduleTable}>
-                            <div className={styles.scheduleTableHeader}>
-                                <span className={styles.scheduleColName}>O'qituvchi</span>
-                                <span className={styles.scheduleColDays}>Kunlar</span>
-                                <span className={styles.scheduleColTime}>Vaqti</span>
-                                <span className={styles.scheduleColPeriod}>Davomiyligi</span>
-                                <span className={styles.scheduleColRoom}>Xona</span>
-                            </div>
-                            {fakeGroupData.schedule.map(item => (
-                                <div key={item.id} className={styles.scheduleRow}>
-                                    <span className={styles.scheduleColName}>
-                                        <span className={styles.scheduleTeacher}>{item.teacher}</span>
-                                    </span>
-                                    <span className={styles.scheduleColDays}>{item.days}</span>
-                                    <span className={styles.scheduleColTime}>{item.time}</span>
-                                    <span className={styles.scheduleColPeriod}>{item.period}</span>
-                                    <span className={styles.scheduleColRoom}>{item.room}</span>
-                                </div>
-                            ))}
+                        <div className={styles.scheduleList}>
+                            {(() => {
+                                const teachersList = groupDetails?.teachers?.length > 0 ? groupDetails.teachers : (groupDetails ? [{ id: 'unknown', full_name: "Noma'lum" }] : []);
+                                const displayedTeachers = showAllSchedules ? teachersList : teachersList.slice(0, 2);
+                                
+                                return displayedTeachers.map((teacher, index) => {
+                                    const item = {
+                                        id: `${groupDetails?.id || 'g'}-${teacher.id || index}`,
+                                        teacher: teacher.full_name || teacher.name || "Noma'lum",
+                                        days: translateDays(groupDetails?.week_day),
+                                        time: groupDetails?.start_time ? `${groupDetails.start_time} dan - ${calculateEndTime(groupDetails.start_time, 2)} gacha` : "",
+                                        period: groupDetails?.start_date ? `${formatDate(groupDetails.start_date)} - ${formatDate(calculateEndDate(groupDetails.start_date, groupDetails.course?.duration_month))}` : "",
+                                        room: groupDetails?.room || "Noma'lum"
+                                    };
+                                    return (
+                                        <div key={item.id} className={styles.scheduleItem}>
+                                            <span className={styles.teacherName}>{item.teacher}</span>
+                                            <div className={styles.scheduleDetails}>
+                                                <span>{item.days}</span>
+                                                <span>{item.time}</span>
+                                                <span>{item.period}</span>
+                                                <span>{item.room}</span>
+                                            </div>
+                                        </div>
+                                    );
+                                });
+                            })()}
                         </div>
 
-                        <div className={styles.showMoreBtnWrapper}>
-                            <button className={styles.showMoreBtn}>Yana ko'rsatish (9)</button>
-                        </div>
+                        {groupDetails?.teachers?.length > 2 && (
+                            <div className={styles.showMoreBtnWrapper}>
+                                <button 
+                                    className={styles.showMoreBtn}
+                                    onClick={() => setShowAllSchedules(!showAllSchedules)}
+                                >
+                                    {showAllSchedules ? "Yashirish" : `Yana ko'rsatish (${groupDetails.teachers.length - 2})`}
+                                </button>
+                            </div>
+                        )}
 
                         {/* Month navigation */}
                         <div className={styles.monthNav}>
@@ -245,19 +302,19 @@ export default function GroupDetail() {
                                 <KeyboardArrowLeftRoundedIcon fontSize="small" />
                             </button>
                             <span className={styles.monthNavLabel}>
-                                {fakeGroupData.studyMonths[currentMonth]?.label}
+                                {schedules[currentMonth]?.label || ""}
                             </span>
                             <button 
                                 className={styles.monthNavBtn} 
-                                onClick={() => setCurrentMonth(Math.min(fakeGroupData.studyMonths.length - 1, currentMonth + 1))}
-                                disabled={currentMonth >= fakeGroupData.studyMonths.length - 1}
+                                onClick={() => setCurrentMonth(Math.min(schedules.length - 1, currentMonth + 1))}
+                                disabled={currentMonth >= schedules.length - 1 || schedules.length === 0}
                             >
                                 <KeyboardArrowRightRoundedIcon fontSize="small" />
                             </button>
                         </div>
 
                         {/* Study months and calendar */}
-                        {(showAllMonths ? fakeGroupData.studyMonths : fakeGroupData.studyMonths.slice(0, 1)).map((studyMonth, idx) => (
+                        {(showAllMonths ? schedules : schedules.slice(currentMonth, currentMonth + 1)).map((studyMonth, idx) => (
                             <div key={idx} className={styles.studyMonthBlock}>
                                 <div className={styles.studyMonthHeader}>
                                     <span className={styles.studyMonthLabel}>{studyMonth.label}</span>
@@ -276,7 +333,7 @@ export default function GroupDetail() {
                             </div>
                         ))}
 
-                        {fakeGroupData.studyMonths.length > 1 && (
+                        {schedules.length > 1 && (
                             <div className={styles.showAllBtnWrapper}>
                                 <button 
                                     className={styles.showAllBtn} 
