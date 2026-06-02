@@ -27,10 +27,10 @@ export default function LessonDetail() {
         console.error("Error fetching curriculum lessons:", err);
       }
     };
-    if (id) {
+    if (id && topicType === "O'quv reja bo'yicha" && curriculumLessons.length === 0) {
       fetchCurriculumLessons();
     }
-  }, [id]);
+  }, [id, topicType, curriculumLessons.length]);
 
   useEffect(() => {
     const fetchStudents = async () => {

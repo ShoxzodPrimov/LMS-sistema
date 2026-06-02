@@ -1,10 +1,11 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import styles from "./TeacherModal.module.scss";
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import AddRoundedIcon from '@mui/icons-material/AddRounded';
 import CloudUploadOutlinedIcon from '@mui/icons-material/CloudUploadOutlined';
 import { createPortal } from "react-dom";
 import AddGroupModal from "./AddGroupModal/AddGroupModal";
+import { api } from "../../../api/api";
 
 export default function TeacherModal({
     isOpen,
@@ -12,8 +13,8 @@ export default function TeacherModal({
     onSubmit,
     teacherToEdit
 }) {
-    const [shouldRender, setShouldRender] = useState(isOpen);
     const [isAddGroupModalOpen, setIsAddGroupModalOpen] = useState(false);
+    const [shouldRender, setShouldRender] = useState(isOpen);
 
     const defaultTeacherData = {
         phone: "+998",
@@ -26,16 +27,6 @@ export default function TeacherModal({
     };
 
     const [teacherData, setTeacherData] = useState(defaultTeacherData);
-
-    const normalizeGroups = (groups = []) => {
-        if (!Array.isArray(groups)) return [];
-        return groups.map((group) => {
-            if (group && typeof group === 'object') {
-                return group;
-            }
-            return { id: group, name: String(group) };
-        });
-    };
 
     const toggleAddGroupModal = () => setIsAddGroupModalOpen(!isAddGroupModalOpen);
 
@@ -55,6 +46,7 @@ export default function TeacherModal({
         if (isOpen) {
             setShouldRender(true);
             document.body.style.overflow = 'hidden';
+            
             if (teacherToEdit) {
                 setTeacherData({
                     phone: teacherToEdit.phone || "+998",
@@ -63,7 +55,7 @@ export default function TeacherModal({
                     address: teacherToEdit.address || "",
                     password: "",
                     photo: null,
-                    groups: normalizeGroups(teacherToEdit.groups || [])
+                    groups: teacherToEdit.groups || []
                 });
             } else {
                 resetForm();
@@ -78,7 +70,9 @@ export default function TeacherModal({
         }
     }, [isOpen, teacherToEdit]);
 
-    const handleSubmit = (e) => {
+    const [isSaving, setIsSaving] = useState(false);
+
+    const handleSubmit = async (e) => {
         if (e) e.preventDefault();
 
         const { fullName, email, password, phone, address, photo, groups } = teacherData;
@@ -94,47 +88,55 @@ export default function TeacherModal({
             return;
         }
 
-        // Clean phone number (format strictly as E.164 international phone number: +998XXXXXXXXX)
-        const phoneValue = phone || "";
-        let cleanPhone = String(phoneValue).replace(/[^\d+]/g, "").trim();
+        let cleanPhone = String(phone || "").replace(/[^\d+]/g, "").trim();
         if (!cleanPhone.startsWith("+")) {
             cleanPhone = "+" + cleanPhone;
         }
 
-        const payload = {
-            full_name: fullName,
-            email,
-            phone: cleanPhone,
-            address: address || "",
-            groups: normalizeGroups(groups)
-                .map(group => typeof group === 'object' ? group.id : group)
-                .filter(groupId => groupId != null && groupId !== "")
-                .map(Number)
-        };
+        setIsSaving(true);
+
+        let finalGroups = [...groups];
+        const needsMapping = finalGroups.some(g => !g || typeof g !== 'object' || (!g.id && !g.group_id) || isNaN(Number(g.id || g.group_id)));
+        
+        if (needsMapping && finalGroups.length > 0) {
+            try {
+                const res = await api.get('/groups/all');
+                const allGroups = res.data.data;
+                finalGroups = finalGroups.map(g => {
+                    const nameToMatch = typeof g === 'object' ? (g.name || g.title) : String(g);
+                    const matched = allGroups.find(ag => ag.name === nameToMatch || ag.title === nameToMatch);
+                    return matched ? { id: matched.id, name: matched.name } : g;
+                });
+            } catch (err) {
+                console.error("Failed to map groups on submit", err);
+            }
+        }
+
+        const formData = new FormData();
+        formData.append("full_name", fullName);
+        formData.append("email", email);
+        formData.append("phone", cleanPhone);
+        formData.append("address", address || "");
 
         if (password) {
-            payload.password = password;
+            formData.append("password", password);
         }
 
         if (photo) {
-            const formData = new FormData();
-            formData.append("full_name", payload.full_name);
-            formData.append("email", payload.email);
-            formData.append("phone", payload.phone);
-            formData.append("address", payload.address);
-            if (payload.password) {
-                formData.append("password", payload.password);
-            }
             formData.append("photo", photo);
-            payload.groups.forEach(groupId => formData.append("groups", groupId));
+        }
 
-            if (onSubmit) {
-                onSubmit(formData, teacherToEdit);
+        finalGroups.forEach(group => {
+            const id = group?.id || group?.group_id;
+            if (id) {
+                formData.append("groups", Number(id));
             }
-        } else {
-            if (onSubmit) {
-                onSubmit(payload, teacherToEdit);
-            }
+        });
+
+        setIsSaving(false);
+
+        if (onSubmit) {
+            onSubmit(formData, teacherToEdit, { ...teacherData, groups: finalGroups });
         }
     };
 
@@ -145,130 +147,159 @@ export default function TeacherModal({
             className={`${styles.overlay} ${!isOpen ? styles.fadeOut : ""}`}
             onClick={onClose}
         >
-            <form
-                className={`${styles.modal} ${!isOpen ? styles.slideOut : ""}`}
-                onSubmit={handleSubmit}
-                onClick={(e) => e.stopPropagation()}
-            >
+            <form className={`${styles.modal} ${!isOpen ? styles.slideOut : ""}`} onSubmit={handleSubmit} onClick={(e) => e.stopPropagation()}>
                 <div className={styles.header}>
-                    <div className={styles.headerTop}>
-                        <h2 className={styles.title}>{teacherToEdit?.id ? "O'qituvchini tahrirlash" : "O'qituvchi qo'shish"}</h2>
-                        <button type="button" className={styles.closeBtn} onClick={onClose}>
-                            <CloseRoundedIcon />
-                        </button>
+                    <div className={styles.headerText}>
+                        <h2 className={styles.title}>{teacherToEdit ? "O'qituvchini tahrirlash" : "O'qituvchi qo'shish"}</h2>
+                        <p className={styles.subtitle}>{teacherToEdit ? "Bu yerda o'qituvchini yangilashingiz mumkin." : "Bu yerda siz yangi o'qituvchi qo'shishingiz mumkin."}</p>
                     </div>
-                    <p className={styles.subtitle}>Bu yerda siz yangi o'qituvchi qo'shishingiz mumkin.</p>
+                    <button type="button" className={styles.closeBtn} onClick={onClose}>
+                        <CloseRoundedIcon />
+                    </button>
                 </div>
 
                 <div className={styles.body}>
-                    <div className={styles.formGroup}>
-                        <label>Telefon raqam</label>
-                        <input type="text" name="phone" value={teacherData.phone} onChange={handleInputChange} />
-                    </div>
+                    <div className={styles.leftColumn}>
+                        <div className={styles.formGroup}>
+                            <label>O'qituvchi FIO</label>
+                            <input
+                                type="text"
+                                name="fullName"
+                                placeholder="O'qituvchi FIO ni kiriting"
+                                value={teacherData.fullName}
+                                onChange={handleInputChange}
+                            />
+                        </div>
 
-                    <div className={styles.formGroup}>
-                        <label>Mail</label>
-                        <input type="email" name="email" placeholder="Elektron pochtani kiriting" value={teacherData.email} onChange={handleInputChange} />
-                    </div>
+                        <div className={styles.formGroup}>
+                            <label>Mail</label>
+                            <input
+                                type="email"
+                                name="email"
+                                placeholder="Elektron pochtani kiriting"
+                                value={teacherData.email}
+                                onChange={handleInputChange}
+                            />
+                        </div>
 
-                    <div className={styles.formGroup}>
-                        <label>O'qituvchi FIO</label>
-                        <input type="text" name="fullName" placeholder="Ma'lumotni kiriting" value={teacherData.fullName} onChange={handleInputChange} />
-                    </div>
+                        <div className={styles.formGroup}>
+                            <label>Manzil</label>
+                            <input
+                                type="text"
+                                name="address"
+                                placeholder="Manzilni kiriting"
+                                value={teacherData.address}
+                                onChange={handleInputChange}
+                            />
+                        </div>
 
-
-                    <div className={styles.formGroup}>
-                        <label>Guruh</label>
-                        <div className={styles.groupsInputContainer}>
-                            {teacherData.groups.length > 0 && (
-                                <div className={styles.groupTags}>
-                                    {teacherData.groups.map((group, index) => {
-                                        const key = group?.id ?? `${group?.name ?? group}-${index}`;
-                                        const label = group?.name ?? group?.title ?? String(group);
-                                        return (
-                                            <span key={key} className={styles.groupTag}>
-                                                {label}
-                                                <button 
-                                                    type="button"
-                                                    className={styles.removeGroupBtn}
-                                                    onClick={() => setTeacherData(prev => ({
-                                                        ...prev,
-                                                        groups: prev.groups.filter((g, i) => i !== index)
-                                                    }))}
-                                                >
-                                                    ×
-                                                </button>
-                                            </span>
-                                        );
-                                    })}
-                                </div>
-                            )}
-                            <button type="button" className={styles.addGroupBtnInline} onClick={toggleAddGroupModal}>
-                                <AddRoundedIcon fontSize="small" />
-                                <span>Qo'shish</span>
-                            </button>
+                        <div className={styles.formGroup}>
+                            <label>Guruh</label>
+                            <div className={styles.groupsInputContainer}>
+                                {teacherData.groups.length > 0 && (
+                                    <div className={styles.groupTags}>
+                                        {teacherData.groups.map((group, index) => {
+                                            const key = group?.id ?? `${group?.name ?? group}-${index}`;
+                                            const label = group?.name ?? group?.title ?? String(group);
+                                            return (
+                                                <span key={key} className={styles.groupTag}>
+                                                    {label}
+                                                    <button 
+                                                        type="button"
+                                                        className={styles.removeGroupBtn}
+                                                        onClick={() => setTeacherData(prev => ({
+                                                            ...prev,
+                                                            groups: prev.groups.filter((g, i) => i !== index)
+                                                        }))}
+                                                    >
+                                                        ×
+                                                    </button>
+                                                </span>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+                                <button type="button" className={styles.addGroupBtnInline} onClick={toggleAddGroupModal}>
+                                    <AddRoundedIcon fontSize="small" />
+                                    <span>Qo'shish</span>
+                                </button>
+                            </div>
                         </div>
                     </div>
 
-                    <div className={styles.formGroup}>
-                        <label>Surati</label>
-                        <label 
-                            className={styles.uploadArea}
-                            onDragOver={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                            }}
-                            onDrop={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-                                    setTeacherData(prev => ({
-                                        ...prev,
-                                        photo: e.dataTransfer.files[0]
-                                    }));
-                                }
-                            }}
-                        >
-                            <input 
-                                type="file" 
-                                style={{ display: "none" }} 
-                                accept="image/*"
-                                onChange={(e) => {
-                                    if (e.target.files && e.target.files[0]) {
+                    <div className={styles.rightColumn}>
+                        <div className={styles.formGroup}>
+                            <label>Telefon raqam</label>
+                            <input
+                                type="text"
+                                name="phone"
+                                placeholder="Telefon raqamini kiriting"
+                                value={teacherData.phone}
+                                onChange={handleInputChange}
+                            />
+                        </div>
+
+                        <div className={styles.formGroup}>
+                            <label>Parol</label>
+                            <input
+                                type="password"
+                                name="password"
+                                placeholder="Parolni kiriting"
+                                value={teacherData.password}
+                                onChange={handleInputChange}
+                            />
+                        </div>
+
+                        <div className={styles.formGroup}>
+                            <label>Surati</label>
+                            <label
+                                className={styles.uploadArea}
+                                onDragOver={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                }}
+                                onDrop={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
                                         setTeacherData(prev => ({
                                             ...prev,
-                                            photo: e.target.files[0]
+                                            photo: e.dataTransfer.files[0]
                                         }));
                                     }
                                 }}
-                            />
-                            <CloudUploadOutlinedIcon className={styles.uploadIcon} />
-                            {teacherData.photo ? (
-                                <>
-                                    <p className={styles.uploadText}>
-                                        Tanlandi: <span className={styles.purpleText}>{teacherData.photo.name}</span>
-                                    </p>
-                                    <p className={styles.uploadHint}>O'zgartirish uchun bosing</p>
-                                </>
-                            ) : (
-                                <>
-                                    <p className={styles.uploadText}>
-                                        <span className={styles.purpleText}>Click to upload</span> or drag and drop
-                                    </p>
-                                    <p className={styles.uploadHint}>JPG or PNG (max. 800x800px)</p>
-                                </>
-                            )}
-                        </label>
-                    </div>
-
-                    <div className={styles.formGroup}>
-                        <label>Manzil</label>
-                        <input type="text" name="address" placeholder="Manzilni kiriting" value={teacherData.address} onChange={handleInputChange} />
-                    </div>
-
-                    <div className={styles.formGroup}>
-                        <label>Parol</label>
-                        <input type="password" name="password" placeholder="Parolni kiriting" value={teacherData.password} onChange={handleInputChange} />
+                            >
+                                <input
+                                    type="file"
+                                    style={{ display: "none" }}
+                                    accept="image/*"
+                                    onChange={(e) => {
+                                        if (e.target.files && e.target.files[0]) {
+                                            setTeacherData(prev => ({
+                                                ...prev,
+                                                photo: e.target.files[0]
+                                            }));
+                                        }
+                                    }}
+                                />
+                                <CloudUploadOutlinedIcon className={styles.uploadIcon} />
+                                {teacherData.photo ? (
+                                    <>
+                                        <p className={styles.uploadText}>
+                                            Tanlandi: <span className={styles.purpleText}>{teacherData.photo.name}</span>
+                                        </p>
+                                        <p className={styles.uploadHint}>O'zgartirish uchun bosing</p>
+                                    </>
+                                ) : (
+                                    <>
+                                        <p className={styles.uploadText}>
+                                            <span className={styles.purpleText}>Click to upload</span> or drag and drop
+                                        </p>
+                                        <p className={styles.uploadHint}>JPG or PNG (max. 2 MB)</p>
+                                    </>
+                                )}
+                            </label>
+                        </div>
                     </div>
                 </div>
 

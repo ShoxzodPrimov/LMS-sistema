@@ -11,22 +11,44 @@ export default function AddGroupModal({
     onAdd,
     initialSelectedGroups = []
 }) {
-    if (!isOpen) return null;
-
     const [ groups , setGroups ] = useState([]);
-    const [ selectedGroupIds, setSelectedGroupIds ] = useState(
-        initialSelectedGroups.map(g => g.id)
-    );
+    const [ selectedGroupIds, setSelectedGroupIds ] = useState([]);
 
     useEffect(() => {
-        api.get(`/groups/all`).then(
-            res => {
-                setGroups(res.data.data)
-            }
-        ).catch(
-            err => console.log(err.message)
-        )
-    }, [])
+        if (isOpen && groups.length > 0) {
+            const newSelectedIds = initialSelectedGroups.map(g => {
+                let idValue = typeof g === 'object' ? (g.id || g.group_id) : null;
+                if (idValue && !isNaN(Number(idValue))) {
+                    return Number(idValue);
+                }
+                if (typeof g === 'number' || (typeof g === 'string' && !isNaN(Number(g)))) {
+                    return Number(g);
+                }
+                const nameToMatch = typeof g === 'object' ? (g.name || g.title) : String(g);
+                if (nameToMatch) {
+                    const matched = groups.find(ag => ag.name === nameToMatch || ag.title === nameToMatch);
+                    if (matched) return Number(matched.id);
+                }
+                return null;
+            }).filter(id => id !== null);
+            
+            setSelectedGroupIds(newSelectedIds);
+        }
+    }, [isOpen, initialSelectedGroups, groups]);
+
+    useEffect(() => {
+        if (isOpen && groups.length === 0) {
+            api.get(`/groups/all`).then(
+                res => {
+                    setGroups(res.data.data)
+                }
+            ).catch(
+                err => console.log(err.message)
+            )
+        }
+    }, [isOpen, groups.length])
+
+    if (!isOpen) return null;
 
     const handleCheckboxChange = (groupId) => {
         if (selectedGroupIds.includes(groupId)) {

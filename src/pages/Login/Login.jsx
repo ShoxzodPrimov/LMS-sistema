@@ -25,7 +25,7 @@ export default function () {
                     const auth = res.data?.accessToken;
 
                     if (auth) {
-                        localStorage.setItem("accessToken", auth);
+                        sessionStorage.setItem("accessToken", auth);
                         setSuccess(true);
                         setTimeout(() => {
                             navigate('/dashboard', {

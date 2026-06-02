@@ -43,15 +43,18 @@ export default function GroupModal({ isOpen, onClose, onSave }) {
 
     const toggleAddStudentModal = () => {
         if (!isAddStudentModalOpen) {
-            console.log('GroupModal: fetching students for modal');
-            api.get('/students').then(res => {
-                const list = res.data?.data || res.data || [];
-                setStudentsOptions(list);
+            if (studentsOptions.length === 0) {
+                api.get('/students').then(res => {
+                    const list = res.data?.data || res.data || [];
+                    setStudentsOptions(list);
+                    setIsAddStudentModalOpen(true);
+                }).catch(err => {
+                    console.error('Error fetching students for modal:', err);
+                    setIsAddStudentModalOpen(true);
+                });
+            } else {
                 setIsAddStudentModalOpen(true);
-            }).catch(err => {
-                console.error('Error fetching students for modal:', err);
-                setIsAddStudentModalOpen(true);
-            });
+            }
         } else {
             setIsAddStudentModalOpen(false);
         }
@@ -59,15 +62,18 @@ export default function GroupModal({ isOpen, onClose, onSave }) {
 
     const toggleAddTeacherModal = () => {
         if (!isAddTeacherModalOpen) {
-            console.log('GroupModal: fetching teachers for modal');
-            api.get('/teachers').then(res => {
-                const list = res.data?.data || res.data || [];
-                setTeachersOptions(list);
+            if (teachersOptions.length === 0) {
+                api.get('/teachers').then(res => {
+                    const list = res.data?.data || res.data || [];
+                    setTeachersOptions(list);
+                    setIsAddTeacherModalOpen(true);
+                }).catch(err => {
+                    console.error('Error fetching teachers for modal:', err);
+                    setIsAddTeacherModalOpen(true);
+                });
+            } else {
                 setIsAddTeacherModalOpen(true);
-            }).catch(err => {
-                console.error('Error fetching teachers for modal:', err);
-                setIsAddTeacherModalOpen(true);
-            });
+            }
         } else {
             setIsAddTeacherModalOpen(false);
         }
@@ -137,17 +143,11 @@ export default function GroupModal({ isOpen, onClose, onSave }) {
             setShouldRender(true);
             document.body.style.overflow = 'hidden';
             
-            // Pre-fetch all options to ensure labels render correctly
+            // Pre-fetch courses and rooms
             fetchCourses();
             fetchRooms();
             
-            api.get('/teachers').then(res => {
-                setTeachersOptions(res.data?.data || res.data || []);
-            }).catch(err => console.error('Error pre-fetching teachers:', err));
-
-            api.get('/students').then(res => {
-                setStudentsOptions(res.data?.data || res.data || []);
-            }).catch(err => console.error('Error pre-fetching students:', err));
+            // Removed teachers and students fetch to avoid unnecessary requests
         } else {
             const timer = setTimeout(() => {
                 setShouldRender(false);

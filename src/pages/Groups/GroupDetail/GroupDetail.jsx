@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useParams, useNavigate, useSearchParams } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams, useLocation } from "react-router-dom";
 import { api } from "../../../api/api";
 import styles from "./GroupDetail.module.scss";
 import ArrowBackIosNewRoundedIcon from '@mui/icons-material/ArrowBackIosNewRounded';
@@ -14,27 +14,33 @@ import PlayCircleOutlineRoundedIcon from '@mui/icons-material/PlayCircleOutlineR
 import CloseRoundedIcon from '@mui/icons-material/CloseRounded';
 import CloudUploadOutlinedIcon from '@mui/icons-material/CloudUploadOutlined';
 import DeleteOutlineRoundedIcon from '@mui/icons-material/DeleteOutlineRounded';
+import UygaVazifa from './UygaVazifa';
+import Videolar from './Videolar';
 
 export default function GroupDetail() {
     const { id } = useParams();
     const navigate = useNavigate();
+    const location = useLocation();
     const [searchParams, setSearchParams] = useSearchParams();
     const [currentMonth, setCurrentMonth] = useState(0);
     const [showAllMonths, setShowAllMonths] = useState(false);
     const [OverallLessons] = useState([]);
     const [schedules, setSchedules] = useState([]);
-    const [groupDetails, setGroupDetails] = useState(null);
-    const [homeworkData, setHomeworkData] = useState([]);
-    const [videosData, setVideosData] = useState([]);
+    const [groupDetails, setGroupDetails] = useState(location.state?.groupData || null);
+    const [videoRefresh, setVideoRefresh] = useState(0);
     const [isVideoModalOpen, setIsVideoModalOpen] = useState(false);
     const [selectedVideoFile, setSelectedVideoFile] = useState(null);
     const [videoFileName, setVideoFileName] = useState("");
     const [selectedLessonId, setSelectedLessonId] = useState("");
     const [isUploadingVideo, setIsUploadingVideo] = useState(false);
-    const [selectedPlayVideo, setSelectedPlayVideo] = useState(null);
     const [groupLessons, setGroupLessons] = useState([]);
     const [groupStudents, setGroupStudents] = useState([]);
     const fileInputRef = useRef(null);
+
+    // Refs to prevent duplicate fetching on re-renders
+    const schedulesFetchedRef = useRef(false);
+    const groupDetailsFetchedRef = useRef(false);
+    const lessonsFetchedRef = useRef(false);
 
     const handleFileSelect = (e) => {
         const file = e.target.files[0];
@@ -53,12 +59,10 @@ export default function GroupDetail() {
 
     useEffect(() => {
         const fetchSchedules = async () => {
+            schedulesFetchedRef.current = true;
             try {
                 const res = await api.get(`/groups/${id}/schedules`);
-                console.log(res)
                 const data = res.data;
-                // data is an array of objects, each object can have keys "1", "2", "3"... 
-                // representing study months
                 const formattedSchedules = [];
                 data.forEach((item) => {
                     const keys = Object.keys(item).sort((a, b) => Number(a) - Number(b));
@@ -80,108 +84,91 @@ export default function GroupDetail() {
                 setSchedules(formattedSchedules);
             } catch (err) {
                 console.error("Error fetching schedules:", err);
+                schedulesFetchedRef.current = false;
             }
         };
-        if (id) {
+        if (id && searchParams.get("tab") !== "1" && searchParams.get("tab") !== "2" && !schedulesFetchedRef.current) {
             fetchSchedules();
         }
-    }, [id]);
+    }, [id, searchParams]);
 
     useEffect(() => {
-        const fetchGroupDetails = async () => {
+        const fetchBasicDetails = async () => {
+            groupDetailsFetchedRef.current = true;
             try {
-                const [resOne, resBasic] = await Promise.all([
-                    api.get(`/groups/one/${id}`).catch(() => ({ data: {} })),
-                    api.get(`/groups/${id}`).catch(() => ({ data: {} }))
-                ]);
-                
-                const dataOne = resOne.data?.data || resOne.data || {};
-                const dataBasic = resBasic.data?.data || resBasic.data || {};
-                
-                // Merge data so that we have both Dars jadvali info (from /one) and Guruh parametrlari info (from basic endpoint)
-                setGroupDetails({ ...dataOne, ...dataBasic });
+                const res = await api.get(`/groups/${id}`).catch(() => ({ data: {} }));
+                const dataBasic = res.data?.data || res.data || {};
+                setGroupDetails(prev => ({ ...prev, ...dataBasic }));
             } catch (err) {
-                console.error("Error fetching group details:", err);
+                console.error("Error fetching basic group details:", err);
+                groupDetailsFetchedRef.current = false;
             }
         };
-        if (id) {
-            fetchGroupDetails();
-        }
-    }, [id]);
 
+        const isTab0 = searchParams.get("tab") !== "1" && searchParams.get("tab") !== "2";
+
+        if (id && isTab0 && !groupDetailsFetchedRef.current) {
+            if (location.state?.groupData) {
+                groupDetailsFetchedRef.current = true;
+            } else {
+                fetchBasicDetails();
+            }
+        }
+    }, [id, location.state, searchParams]);
+
+    const detailedFetchedRef = useRef(false);
     useEffect(() => {
-        const fetchHomework = async () => {
+        const fetchDetailedInfo = async () => {
+            detailedFetchedRef.current = true;
             try {
-                const res = await api.get(`/homework/${id}`);
-                // if it returns an object that has data, or just array
-                const data = res.data.data || res.data || [];
-                setHomeworkData(Array.isArray(data) ? data : [data]);
+                const res = await api.get(`/groups/one/${id}`).catch(() => ({ data: {} }));
+                const dataOne = res.data?.data || res.data || {};
+                setGroupDetails(prev => ({ ...prev, ...dataOne }));
             } catch (err) {
-                console.error("Error fetching homework:", err);
+                console.error("Error fetching detailed info:", err);
+                detailedFetchedRef.current = false;
             }
         };
-        if (id) {
-            fetchHomework();
+        const isTab0 = searchParams.get("tab") !== "1" && searchParams.get("tab") !== "2";
+        if (id && isTab0 && !detailedFetchedRef.current) {
+            fetchDetailedInfo();
         }
-    }, [id]);
-
-    const fetchVideos = async () => {
-        try {
-            const res = await api.get(`/files/${id}`);
-            const data = res.data.data || res.data || [];
-            setVideosData(Array.isArray(data) ? data : [data]);
-        } catch (err) {
-            console.error("Error fetching videos:", err);
-        }
-    };
-
-    useEffect(() => {
-        if (id) {
-            fetchVideos();
-        }
-    }, [id]);
-
-    useEffect(() => {
-        const fetchGroupLessons = async () => {
-            try {
-                const res = await api.get(`/lessons/my/group/${id}`);
-                const data = res.data.data || res.data || [];
-                setGroupLessons(Array.isArray(data) ? data : [data]);
-            } catch (err) {
-                console.error("Error fetching group lessons:", err);
-            }
-        };
-        if (id) {
-            fetchGroupLessons();
-        }
-    }, [id]);
-
-    useEffect(() => {
-        const fetchStudents = async () => {
-            try {
-                const res = await api.get(`/groups/one/students/${id}`);
-                const data = res.data?.data || res.data || [];
-                setGroupStudents(Array.isArray(data) ? data : []);
-            } catch (err) {
-                console.error("Error fetching group students:", err);
-            }
-        };
-        if (id) {
-            fetchStudents();
-        }
-    }, [id]);
+    }, [id, searchParams]);
 
     const tabIndex = searchParams.get("tab") || "0";
     let activeTab = "Ma'lumotlar";
     if (tabIndex === "1") activeTab = "Guruh darsliklari";
     if (tabIndex === "2") activeTab = "Akademik davomati";
 
-    const [activeSubTab, setActiveSubTab] = useState("Uyga vazifa");
+    const activeSubTab = searchParams.get("subtab") || "Uyga vazifa";
     const [showAllSchedules, setShowAllSchedules] = useState(false);
+
+    const setActiveSubTab = (subtab) => {
+        const newParams = new URLSearchParams(searchParams);
+        newParams.set("subtab", subtab);
+        setSearchParams(newParams);
+    };
 
     const handleTabChange = (index) => {
         setSearchParams({ tab: index });
     };
+
+    useEffect(() => {
+        const fetchGroupLessons = async () => {
+            lessonsFetchedRef.current = true;
+            try {
+                const res = await api.get(`/lessons/my/group/${id}`);
+                const data = res.data.data || res.data || [];
+                setGroupLessons(Array.isArray(data) ? data : [data]);
+            } catch (err) {
+                console.error("Error fetching group lessons:", err);
+                lessonsFetchedRef.current = false;
+            }
+        };
+        if (id && isVideoModalOpen && !lessonsFetchedRef.current) {
+            fetchGroupLessons();
+        }
+    }, [id, isVideoModalOpen]);
 
     const dayTranslations = {
         MONDAY: "Du",
@@ -279,7 +266,7 @@ export default function GroupDetail() {
                 }
             );
 
-            await fetchVideos();
+            setVideoRefresh(prev => prev + 1);
             handleModalClose();
         } catch (err) {
             console.error("Error uploading video:", err);
@@ -483,8 +470,8 @@ export default function GroupDetail() {
                                 </div>
                                 <div className={styles.calendarDaysRow}>
                                     {studyMonth.days.map(item => (
-                                        <div 
-                                            key={item.id} 
+                                        <div
+                                            key={item.id}
                                             className={styles.calendarChip}
                                             onClick={() => navigate(`/dashboard/groups/${id}/lesson/2026-05-${String(item.day).padStart(2, '0')}`)}
                                             style={{ cursor: "pointer" }}
@@ -560,95 +547,11 @@ export default function GroupDetail() {
 
                     <div className={styles.tableCard}>
                         {activeSubTab === "Uyga vazifa" && (
-                            <table className={styles.lessonsTable}>
-                                <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Mavzu</th>
-                                        <th><PersonOutlineRoundedIcon fontSize="small" style={{ color: '#94a3b8' }} /></th>
-                                        <th><TimerOutlinedIcon fontSize="small" style={{ color: '#f59e0b' }} /></th>
-                                        <th><CheckCircleOutlineRoundedIcon fontSize="small" style={{ color: '#22c55e' }} /></th>
-                                        <th>Berilgan vaqt</th>
-                                        <th>Tugash vaqti</th>
-                                        <th>Dars sanasi</th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {homeworkData.map((lesson, idx) => (
-                                        <tr 
-                                            key={`${lesson.id}-${idx}`}
-                                            onClick={() => navigate(`/dashboard/groups/${id}/homework/${lesson.id}/results`)}
-                                            style={{ cursor: "pointer" }}
-                                        >
-                                            <td>{idx + 1}</td>
-                                            <td>
-                                                {lesson.homeworkPending > 0 ? (
-                                                    <div className={styles.pillOrange}>
-                                                        {lesson.topic}
-                                                    </div>
-                                                ) : (
-                                                    <div className={styles.lessonTitleText}>
-                                                        {lesson.topic}
-                                                    </div>
-                                                )}
-                                            </td>
-                                            <td>{lesson.existStudentsIngroup || 0}</td>
-                                            <td>{lesson.homeworkPending || 0}</td>
-                                            <td>{lesson.homeworkAccept || 0}</td>
-                                            <td className={styles.timeCell}>{formatDateTime(lesson.created_at)}</td>
-                                            <td className={styles.timeCell}>{formatDateTime(addDays(lesson.created_at, 2))}</td>
-                                            <td className={styles.timeCell}>{formatDate(lesson.created_at)}</td>
-                                            <td><MoreVertRoundedIcon className={styles.moreIcon} /></td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                            <UygaVazifa />
                         )}
 
                         {activeSubTab === "Videolar" && (
-                            <table className={styles.lessonsTable}>
-                                <thead>
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Video nomi</th>
-                                        <th>Dars nomi</th>
-                                        <th>Status</th>
-                                        <th>Dars sanasi</th>
-                                        <th>Hajmi</th>
-                                        <th>Qo'shilgan vaqti</th>
-                                        <th></th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {videosData.length > 0 ? videosData.map((video, idx) => (
-                                        <tr key={video.id || idx}>
-                                            <td>{idx + 1}</td>
-                                            <td>
-                                                <div
-                                                    className={styles.videoNameCell}
-                                                    onClick={() => setSelectedPlayVideo(video)}
-                                                >
-                                                    <PlayCircleOutlineRoundedIcon className={styles.playIcon} fontSize="small" />
-                                                    {video.originalname || video.title || video.videoName || video.name || "Video"}
-                                                </div>
-                                            </td>
-                                            <td className={styles.lessonNameCell}>{video.lesson?.topic || video.lessonName || "-"}</td>
-                                            <td>
-                                                <div className={styles.statusPill}>{video.status || "Tayyor"}</div>
-                                            </td>
-                                            <td className={styles.timeCell}>{video.lesson?.created_at ? formatDate(video.lesson.created_at) : video.lessonDate || "-"}</td>
-                                            <td className={styles.timeCell}>{video.size_mb ? parseFloat(video.size_mb).toFixed(2) + ' MB' : formatFileSize(video.size || video.file_size)}</td>
-                                            <td className={styles.timeCell}>{formatDate(video.created_at || video.addedTime)}</td>
-                                            <td><MoreVertRoundedIcon className={styles.moreIcon} /></td>
-                                        </tr>
-                                    )) : (
-                                        <tr>
-                                            <td colSpan="8" style={{ textAlign: "center", padding: "20px" }}>Videolar topilmadi</td>
-                                        </tr>
-                                    )}
-                                </tbody>
-                            </table>
+                            <Videolar refreshTrigger={videoRefresh} />
                         )}
                     </div>
                 </div>
@@ -668,8 +571,8 @@ export default function GroupDetail() {
 
                     <div className={styles.calendarList}>
                         {fakeGroupData.calendarDays.map(item => (
-                            <div 
-                                key={item.id} 
+                            <div
+                                key={item.id}
                                 className={`${styles.calendarDay} ${item.active ? styles.activeDay : ""}`}
                                 onClick={() => navigate(`/dashboard/groups/${id}/lesson/2026-05-${String(item.day).padStart(2, '0')}`)}
                                 style={{ cursor: "pointer" }}
@@ -723,8 +626,8 @@ export default function GroupDetail() {
                                             <tr>
                                                 <td className={styles.fileNameCol}>{selectedVideoFile.name}</td>
                                                 <td>
-                                                    <select 
-                                                        className={styles.darsSelect} 
+                                                    <select
+                                                        className={styles.darsSelect}
                                                         value={selectedLessonId}
                                                         onChange={(e) => setSelectedLessonId(e.target.value)}
                                                     >
@@ -767,35 +670,14 @@ export default function GroupDetail() {
                                 Bekor qilish
                             </button>
                             {selectedVideoFile && (
-                                <button 
-                                    className={styles.uploadSubmitBtn} 
+                                <button
+                                    className={styles.uploadSubmitBtn}
                                     onClick={handleVideoUpload}
                                     disabled={isUploadingVideo}
                                 >
                                     {isUploadingVideo ? "Yuklanmoqda..." : "Fayllarni yuklash"}
                                 </button>
                             )}
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* Video Player Modal */}
-            {selectedPlayVideo && (
-                <div className={styles.modalOverlay} onClick={() => setSelectedPlayVideo(null)}>
-                    <div className={styles.videoPlayerModalContent} onClick={(e) => e.stopPropagation()}>
-                        <div className={styles.videoPlayerHeader}>
-                            <h2>{selectedPlayVideo.originalname || selectedPlayVideo.title || "Video"}</h2>
-                            <button className={styles.closeBtn} onClick={() => setSelectedPlayVideo(null)}>
-                                <CloseRoundedIcon fontSize="small" />
-                            </button>
-                        </div>
-                        <div className={styles.videoPlayerContainer}>
-                            <video
-                                controls
-                                autoPlay
-                                src={`https://najot-edu.softwareengineer.uz/${selectedPlayVideo.video_url}`}
-                            />
                         </div>
                     </div>
                 </div>

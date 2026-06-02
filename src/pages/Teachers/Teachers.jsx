@@ -62,7 +62,7 @@ export default function Teachers() {
         fetchTeachers();
     }, []);
 
-    const handleTeacherSubmit = (payload, teacherToEdit) => {
+    const handleTeacherSubmit = (payload, teacherToEdit, localData) => {
         setIsLoading(true);
 
         const request = teacherToEdit?.id
@@ -71,9 +71,42 @@ export default function Teachers() {
 
         request.then((res) => {
             console.log(teacherToEdit?.id ? "Teacher updated successfully" : "Teacher created successfully");
-            fetchTeachers();
+            
+            // fetchTeachers(); // Temporarily disabled per user request
+            
+            if (teacherToEdit?.id) {
+                // Optimistic update for PATCH
+                setTeacherData(prev => prev.map(t => {
+                    if (t.id === teacherToEdit.id) {
+                        return {
+                            ...t,
+                            full_name: localData?.fullName || t.full_name,
+                            email: localData?.email || t.email,
+                            phone: localData?.phone || t.phone,
+                            address: localData?.address || t.address,
+                            groups: localData?.groups || t.groups
+                        };
+                    }
+                    return t;
+                }));
+            } else {
+                // Optimistic update for POST
+                if (res.data?.data) {
+                    setTeacherData(prev => [res.data.data, ...prev]);
+                } else {
+                    fetchTeachers(); // fallback if no data returned
+                }
+            }
+
             closeTeacherModal();
         }).catch((err) => {
+            if (err.response && err.response.status === 304) {
+                console.log("Hech qanday o'zgarish qilinmadi (304 Not Modified)");
+                // fetchTeachers(); // Temporarily disabled
+                closeTeacherModal();
+                return;
+            }
+
             const responseData = err.response?.data;
             console.log('Error response from server:', responseData);
 

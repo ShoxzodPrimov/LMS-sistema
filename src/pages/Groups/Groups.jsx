@@ -68,19 +68,6 @@ export default function Groups() {
         // Set local row data immediately so sidebar opens and populates instantly
         setEditGroupData(group);
         setIsEditOpen(true);
-
-        // Fetch fresh details in the background
-        api.get(`/groups/${group.id}`).then(res => {
-            const freshData = res.data.data || res.data;
-            if (freshData) {
-                setEditGroupData(prev => ({
-                    ...prev,
-                    ...freshData
-                }));
-            }
-        }).catch(err => {
-            console.error('Error fetching group data in background:', err);
-        });
     };
 
     const handleEditCancel = () => {
@@ -160,7 +147,7 @@ export default function Groups() {
                     <div className={styles.statInfo}>
                         <p className={styles.statLabel}>O'qituvchilar</p>
                         <h2 className={styles.statValue}>
-                            {new Set(groups.flatMap(g => g.teachers?.map(t => t.id).filter(Boolean) || [])).size || groups.reduce((sum, g) => sum + (g.teachers?.length || 0), 0)}
+                            {new Set(groups.flatMap(g => g.teachers?.map(t => typeof t === 'object' ? String(t.id || t.full_name || t.name || '') : String(t)).filter(Boolean) || [])).size}
                         </h2>
                     </div>
                 </div>
@@ -175,7 +162,7 @@ export default function Groups() {
                     <div className={styles.statInfo}>
                         <p className={styles.statLabel}>O'quvchilar</p>
                         <h2 className={styles.statValue}>
-                            {groups.reduce((sum, g) => sum + (g.students?.length || 0), 0)}
+                            {new Set(groups.flatMap(g => g.students?.map(s => typeof s === 'object' ? String(s.id || s.full_name || s.name || '') : String(s)).filter(Boolean) || [])).size}
                         </h2>
                     </div>
                     <div className={styles.studentAvatars}>
@@ -365,8 +352,12 @@ export default function Groups() {
                 isOpen={isEditOpen}
                 onClose={handleEditCancel}
                 groupData={editGroupData}
-                onSave={() => {
-                    fetchGroups();
+                onSave={(optimisticData) => {
+                    if (optimisticData) {
+                        setGroup(prev => prev.map(g => g.id === editGroupData.id ? { ...g, ...optimisticData } : g));
+                    } else {
+                        fetchGroups();
+                    }
                 }}
             />
 

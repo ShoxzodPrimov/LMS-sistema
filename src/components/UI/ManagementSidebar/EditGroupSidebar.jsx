@@ -64,14 +64,18 @@ export default function EditGroupSidebar({ isOpen, onClose, groupData, onSave })
 
     const toggleAddStudentModal = () => {
         if (!isAddStudentModalOpen) {
-            api.get('/students').then(res => {
-                const list = res.data?.data || res.data || [];
-                setStudentsOptions(list);
+            if (studentsOptions.length === 0 || studentsOptions.length === (groupData?.students?.length || 0)) {
+                api.get('/students').then(res => {
+                    const list = res.data?.data || res.data || [];
+                    setStudentsOptions(list);
+                    setIsAddStudentModalOpen(true);
+                }).catch(err => {
+                    console.error('Error fetching students for modal:', err);
+                    setIsAddStudentModalOpen(true);
+                });
+            } else {
                 setIsAddStudentModalOpen(true);
-            }).catch(err => {
-                console.error('Error fetching students for modal:', err);
-                setIsAddStudentModalOpen(true);
-            });
+            }
         } else {
             setIsAddStudentModalOpen(false);
         }
@@ -79,14 +83,18 @@ export default function EditGroupSidebar({ isOpen, onClose, groupData, onSave })
 
     const toggleAddTeacherModal = () => {
         if (!isAddTeacherModalOpen) {
-            api.get('/teachers').then(res => {
-                const list = res.data?.data || res.data || [];
-                setTeachersOptions(list);
+            if (teachersOptions.length === 0 || teachersOptions.length === (groupData?.teachers?.length || 0)) {
+                api.get('/teachers').then(res => {
+                    const list = res.data?.data || res.data || [];
+                    setTeachersOptions(list);
+                    setIsAddTeacherModalOpen(true);
+                }).catch(err => {
+                    console.error('Error fetching teachers for modal:', err);
+                    setIsAddTeacherModalOpen(true);
+                });
+            } else {
                 setIsAddTeacherModalOpen(true);
-            }).catch(err => {
-                console.error('Error fetching teachers for modal:', err);
-                setIsAddTeacherModalOpen(true);
-            });
+            }
         } else {
             setIsAddTeacherModalOpen(false);
         }
@@ -149,19 +157,24 @@ export default function EditGroupSidebar({ isOpen, onClose, groupData, onSave })
                 })
                 .catch(err => console.error("Error fetching rooms:", err));
 
-            api.get('/teachers')
-                .then(res => {
-                    setTeachersOptions(res.data?.data || res.data || []);
-                })
-                .catch(err => console.error("Error fetching teachers:", err));
+            // Populate options with existing items to ensure labels render correctly without fetching all
+            if (groupData?.teachers?.length > 0 && typeof groupData.teachers[0] === 'object') {
+                const existingTeachers = groupData.teachers.map(t => ({ id: t.id, full_name: t.full_name || t.name }));
+                setTeachersOptions(prev => {
+                    const newOptions = existingTeachers.filter(et => !prev.find(p => p.id === et.id));
+                    return [...prev, ...newOptions];
+                });
+            }
 
-            api.get('/students')
-                .then(res => {
-                    setStudentsOptions(res.data?.data || res.data || []);
-                })
-                .catch(err => console.error("Error fetching students:", err));
+            if (groupData?.students?.length > 0 && typeof groupData.students[0] === 'object') {
+                const existingStudents = groupData.students.map(s => ({ id: s.id, full_name: s.full_name || s.name || s.student?.full_name }));
+                setStudentsOptions(prev => {
+                    const newOptions = existingStudents.filter(es => !prev.find(p => p.id === es.id));
+                    return [...prev, ...newOptions];
+                });
+            }
         }
-    }, [isOpen]);
+    }, [isOpen, groupData]);
 
 
     // Prepopulate form fields when groupData, courses, or rooms are available
@@ -170,27 +183,35 @@ export default function EditGroupSidebar({ isOpen, onClose, groupData, onSave })
             let matchedCourseId = "";
             if (groupData.course) {
                 if (typeof groupData.course === 'object') {
-                    matchedCourseId = groupData.course.id;
+                    matchedCourseId = groupData.course.id || groupData.course_id;
+                    if (!matchedCourseId && courses.length > 0) {
+                        const matched = courses.find(c => c.name === groupData.course.name);
+                        if (matched) matchedCourseId = matched.id;
+                    }
                 } else if (courses.length > 0) {
                     const matched = courses.find(c => c.name === groupData.course || String(c.id) === String(groupData.course));
                     if (matched) matchedCourseId = matched.id;
                 }
             }
-            if (!matchedCourseId) {
-                matchedCourseId = groupData.course_id || "";
+            if (!matchedCourseId && groupData.course_id) {
+                matchedCourseId = groupData.course_id;
             }
 
             let matchedRoomId = "";
             if (groupData.room) {
                 if (typeof groupData.room === 'object') {
-                    matchedRoomId = groupData.room.id;
+                    matchedRoomId = groupData.room.id || groupData.room_id;
+                    if (!matchedRoomId && rooms.length > 0) {
+                        const matched = rooms.find(r => r.name === groupData.room.name);
+                        if (matched) matchedRoomId = matched.id;
+                    }
                 } else if (rooms.length > 0) {
                     const matched = rooms.find(r => r.name === groupData.room || String(r.id) === String(groupData.room));
                     if (matched) matchedRoomId = matched.id;
                 }
             }
-            if (!matchedRoomId) {
-                matchedRoomId = groupData.room_id || "";
+            if (!matchedRoomId && groupData.room_id) {
+                matchedRoomId = groupData.room_id;
             }
 
             // Map weekDays from API (e.g. ["MONDAY", "WEDNESDAY"]) to internal checkboxes (["mon", "wed"])
@@ -212,8 +233,8 @@ export default function EditGroupSidebar({ isOpen, onClose, groupData, onSave })
             setForm({
                 name: groupData.name || "",
                 description: groupData.description || "",
-                courseId: matchedCourseId,
-                roomId: matchedRoomId,
+                courseId: matchedCourseId || "",
+                roomId: matchedRoomId || "",
                 startDate: formattedDate,
                 startTime: formattedTime,
                 maxStudent: groupData.max_student || 15,
@@ -278,7 +299,21 @@ export default function EditGroupSidebar({ isOpen, onClose, groupData, onSave })
             res => {
                 console.log("Group updated successfully:", res.status);
                 if (onSave) {
-                    onSave();
+                    const selectedCourse = courses.find(c => String(c.id) === String(courseId));
+                    const selectedRoom = rooms.find(r => String(r.id) === String(roomId));
+                    const selectedTeachersObjects = form.teachers.map(id => teachersOptions.find(t => String(t.id) === String(id))).filter(Boolean);
+                    const selectedStudentsObjects = form.students.map(id => studentsOptions.find(s => String(s.id) === String(id))).filter(Boolean);
+
+                    const optimisticUpdatedData = {
+                        name: name,
+                        course: selectedCourse || groupData.course,
+                        start_time: startTime,
+                        week_day: weekDaysMapped,
+                        room: selectedRoom ? selectedRoom.name : groupData.room,
+                        teachers: selectedTeachersObjects,
+                        students: selectedStudentsObjects
+                    };
+                    onSave(optimisticUpdatedData);
                 }
                 onClose();
             }
